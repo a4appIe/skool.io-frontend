@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,35 +21,14 @@ const sortOptions = [
   { value: "name_desc", label: "Name (Z-A)" },
   { value: "class", label: "Class" },
   { value: "admission_date", label: "Admission Date" },
-  { value: "roll_number", label: "Roll Number" },
 ];
 
-// Action handlers - replace with your actual functions
-const handleViewProfile = (student) => {
-  console.log("View profile:", student);
-  alert(`View profile for ${student.name}`);
-};
-
-const handleEditStudent = (student) => {
-  console.log("Edit student:", student);
-  alert(`Edit ${student.name}`);
-};
-
-const handleDeleteStudent = (student) => {
-  if (window.confirm(`Are you sure you want to delete ${student.name}?`)) {
-    console.log("Delete student:", student);
-    alert(`${student.name} deleted successfully!`);
-  }
-};
-
 export default function AdminStudents() {
-  // const [students, setStudents] = useState(mockStudents);
   const students = useStudentStore((state) => state.getStudents());
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const [statusFilter, setStatusFilter] = useState("all");
-  const STUDENT_PATH = import.meta.env.VITE_STUDENT_PATH;
   const navigate = useNavigate();
 
   // Filtering and sorting logic
@@ -65,8 +43,8 @@ export default function AdminStudents() {
           student.admissionNumber
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
           student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          student.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
           student.phone.includes(searchTerm)
       );
     }
@@ -94,8 +72,6 @@ export default function AdminStudents() {
           return a.studentClass.name.localeCompare(b.studentClass.name);
         case "admission_date":
           return new Date(b.admissionDate) - new Date(a.admissionDate);
-        case "roll_number":
-          return parseInt(a.rollNumber) - parseInt(b.rollNumber);
         default:
           return 0;
       }

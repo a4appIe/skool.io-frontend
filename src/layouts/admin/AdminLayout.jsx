@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getAllClasses } from "@/services/class.service";
 import { getAllStudents } from "@/services/student.service";
 import { getAllSubjects } from "@/services/subject.service";
+import { getAllTeachers } from "@/services/teacher.service";
 import { useEffect } from "react";
 import { Outlet } from "react-router-dom";
 
@@ -13,6 +14,7 @@ export default function AdminLayout() {
       await getAllClasses();
       await getAllSubjects();
       await getAllStudents();
+      await getAllTeachers();
       // await
     } catch (error) {
       console.error("Error fetching data:", error);

@@ -11,7 +11,6 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   User,
   BookOpen,
@@ -29,53 +28,42 @@ import {
   X,
   Repeat2,
   File,
+  Phone,
+  MapPin,
+  GraduationCap,
 } from "lucide-react";
-import {
-  getStudent,
-  registerStudent,
-  updateStudent,
-} from "@/services/student.service";
-import useClassStore from "@/store/useClassStore";
 import { useNavigate } from "react-router-dom";
-import createFormDataStudentEdit from "./fns/createFormDataStudentEdit";
-import createFormDataStudent from "./fns/createFormDataStudent";
+import createFormDataTeacher from "./fns/createFormDataTeacher";
+import {
+  getTeacher,
+  registerTeacher,
+  updateTeacher,
+} from "@/services/teacher.service";
+import createFormDataTeacherEdit from "./fns/createFormDataTeacherEdit";
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 const CATEGORIES = ["General", "OBC", "SC", "ST", "Other"];
 const GENDERS = ["Male", "Female", "Other"];
-const RELATIONS = ["Father", "Mother", "Guardian"];
 
 // Steps configuration
 const steps = [
   {
-    label: "Class",
-    key: "classDetails",
-    icon: BookOpen,
-    description: "Select class and admission details",
-  },
-  {
     label: "Personal",
     key: "personal",
     icon: User,
-    description: "Student's personal information",
+    description: "Teacher's personal information",
   },
   {
-    label: "Address",
-    key: "address",
+    label: "Contact",
+    key: "contact",
     icon: Hash,
-    description: "Residential address details",
+    description: "Contact and address details",
   },
   {
-    label: "Family",
-    key: "family",
-    icon: User,
-    description: "Guardian and family information",
-  },
-  {
-    label: "School",
-    key: "previous",
+    label: "Professional",
+    key: "professional",
     icon: BookOpen,
-    description: "Previous education details",
+    description: "Qualification and experience",
   },
   {
     label: "Docs",
@@ -88,82 +76,52 @@ const steps = [
 // Initial form state
 const initialFormState = {
   name: "",
-  gender: "",
-  dob: "",
-  bloodGroup: "",
-  nationality: "Indian",
-  religion: "",
-  caste: "",
-  category: "General",
-  aadharNumber: "",
   email: "",
   phone: "",
-  studentImage: null,
+  gender: "",
+  dob: "",
+  qualification: "",
+  experience: 0,
   password: "",
-  studentClass: "",
-  admissionNumber: "",
-  admissionDate: new Date().toISOString().slice(0, 10),
+  username: "",
+  joiningDate: new Date().toISOString().slice(0, 10),
+  status: "Active",
+  category: "General",
+  aadharNumber: "",
+  bloodGroup: "",
+  teacherImage: null,
   address: {
     street: "",
     city: "",
     state: "",
     pincode: "",
   },
-  guardian: {
-    name: "",
-    relation: "",
-    phone: "",
-    email: "",
-    occupation: "",
-    address: "",
-  },
-  mother: {
-    name: "",
-    phone: "",
-    occupation: "",
-  },
-  father: {
-    name: "",
-    phone: "",
-    occupation: "",
-  },
-  hasPreviousSchool: false,
-  previousSchool: {
-    name: "",
-    mediumOfInstruction: "",
-    board: "",
-    lastClassAttended: "",
-    tcNumber: "",
-    tcIssueDate: "",
-    marksheetPath: null,
-  },
   documents: [],
 };
 
-export function StudentAdmissionForm({ edit, studentId }) {
+export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState(
     edit ? null : { ...initialFormState }
   );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const classList = useClassStore((state) => state.classes) || []; // Fetch classes from store
   const navigate = useNavigate();
-  const STUDENT_PATH = import.meta.env.VITE_STUDENT_PATH;
+  const TEACHER_PATH = import.meta.env.VITE_TEACHER_PATH;
 
-  // TODO - HANDLE FETCHING TEACHER DATA
-  const fetchStudentData = async () => {
-    setLoading(true);
-    try {
-      const studentData = await getStudent(studentId);
-      setFormData({
-        ...studentData,
-        studentClass: studentData.studentClass?._id,
-      });
-    } catch (error) {
-      console.error("Error fetching student data:", error);
-    } finally {
-      setLoading(false);
+  const fetchTeacherData = async () => {
+    if (edit && teacherId) {
+      setLoading(true);
+      try {
+        const teacherData = await getTeacher(teacherId);
+        setFormData({
+          ...teacherData,
+        });
+      } catch (error) {
+        console.error("Error fetching teacher data:", error);
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -171,45 +129,43 @@ export function StudentAdmissionForm({ edit, studentId }) {
   function isStepValid(form, stepIndex) {
     if (!formData) return false; // Ensure form is loaded
     if (edit) return true;
+
     switch (stepIndex) {
-      case 0: // Class Details
-        return !edit ? !!(form.studentClass && form.admissionDate) : true;
-      case 1: // Personal Info
+      case 0: // Personal Details
         return !edit
           ? !!(
               form.name &&
+              form.password &&
               form.gender &&
               form.dob &&
-              form.bloodGroup &&
-              form.religion &&
-              form.aadharNumber &&
-              form.password &&
               form.category &&
-              form.studentImage
+              form.aadharNumber &&
+              form.teacherImage
             )
           : true;
-      case 2: // Address
-        return !edit
-          ? !!(form.address.city && form.address.state && form.address.pincode)
-          : true;
-      case 3: // Family
+
+      case 1: // Contact & Address
         return !edit
           ? !!(
-              form.guardian.name &&
-              form.guardian.relation &&
-              form.guardian.phone
+              form.email &&
+              form.phone &&
+              form.address.city &&
+              form.address.state &&
+              form.address.pincode
             )
           : true;
-      case 4: // Previous School
-        if (!form.hasPreviousSchool) return true;
+
+      case 2: // Professional Information
         return !edit
-          ? !!(form.previousSchool.name && form.previousSchool.board)
+          ? !!(form.qualification && (form.experience || form.experience === 0))
           : true;
-      case 5: // Documents
+
+      case 3: // Documents
         return !edit
           ? form.documents.length > 0 &&
               form.documents.every((doc) => doc.name && doc.file)
           : true;
+
       default:
         return true;
     }
@@ -308,26 +264,26 @@ export function StudentAdmissionForm({ edit, studentId }) {
     try {
       // Simulate API call
       if (edit) {
-        const fd = createFormDataStudentEdit(formData);
+        const fd = createFormDataTeacherEdit(formData);
         // Debugging output
         console.log("Final FormData:");
         for (let pair of fd.entries()) {
           console.log(pair[0], pair[1]);
         }
-        await updateStudent(formData._id, fd);
+        await updateTeacher(formData._id, fd);
       } else {
-        const fd = createFormDataStudent(formData);
+        const fd = createFormDataTeacher(formData);
         // Debugging output
         console.log("Final FormData:");
         for (let pair of fd.entries()) {
           console.log(pair[0], pair[1]);
         }
-        await registerStudent(fd);
+        await registerTeacher(fd);
       }
       // Clear saved data after successful submission
       setFormData(initialFormState);
       setCurrentStep(0);
-      navigate("/school/students");
+      navigate("/school/teachers");
     } catch (error) {
       console.error("Submission error:", error);
     } finally {
@@ -339,89 +295,39 @@ export function StudentAdmissionForm({ edit, studentId }) {
     setFormData(initialFormState);
     setCurrentStep(0);
     setErrors({});
-    localStorage.removeItem("studentAdmissionForm");
   };
 
   // Step content renderer
   const renderStepContent = () => {
     if (!formData) return null;
+
     switch (currentStep) {
-      case 0: // Class Details
-        return (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="class">
-                  Class <span className="text-red-600">*</span>
-                </Label>
-                <Select
-                  value={formData.studentClass?._id || formData.studentClass}
-                  onValueChange={(value) => {
-                    updateFormField("studentClass", value);
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select Class" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {classList.map((cls) => (
-                      <SelectItem key={cls._id} value={cls._id}>
-                        {cls.className}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="admissionNumber">Admission Number</Label>
-                <Input
-                  disabled
-                  id="admissionNumber"
-                  value={formData.admissionNumber}
-                  onChange={(e) =>
-                    updateFormField("admissionNumber", e.target.value)
-                  }
-                  placeholder="Automatically generated"
-                  maxLength={30}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="admissionDate">Admission Date</Label>
-                <Input
-                  disabled
-                  id="admissionDate"
-                  type="date"
-                  value={
-                    edit
-                      ? new Date(formData.admissionDate)
-                          .toISOString()
-                          .split("T")[0]
-                      : formData.admissionDate
-                  }
-                  onChange={(e) =>
-                    updateFormField("admissionDate", e.target.value)
-                  }
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 1: // Personal Info
+      case 0: // Personal Details
         return (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2 sm:col-span-2 lg:col-span-1">
                 <Label htmlFor="name">
-                  Student Name <span className="text-red-600">*</span>
+                  Teacher Name <span className="text-red-600">*</span>
                 </Label>
                 <Input
                   id="name"
                   value={formData.name}
                   onChange={(e) => updateFormField("name", e.target.value)}
-                  placeholder="Enter student name"
+                  placeholder="Enter teacher name"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">
+                  Password <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => updateFormField("password", e.target.value)}
+                  placeholder="Enter password"
                 />
               </div>
 
@@ -484,18 +390,6 @@ export function StudentAdmissionForm({ edit, studentId }) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="nationality">Nationality</Label>
-                <Input
-                  id="nationality"
-                  value={formData.nationality}
-                  onChange={(e) =>
-                    updateFormField("nationality", e.target.value)
-                  }
-                  placeholder="Enter nationality"
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="category">
                   Category <span className="text-red-600">*</span>
                 </Label>
@@ -517,26 +411,6 @@ export function StudentAdmissionForm({ edit, studentId }) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="religion">Religion</Label>
-                <Input
-                  id="religion"
-                  value={formData.religion}
-                  onChange={(e) => updateFormField("religion", e.target.value)}
-                  placeholder="Enter religion"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="caste">Caste</Label>
-                <Input
-                  id="caste"
-                  value={formData.caste}
-                  onChange={(e) => updateFormField("caste", e.target.value)}
-                  placeholder="Enter caste"
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="aadharNumber">Aadhaar Number</Label>
                 <Input
                   id="aadharNumber"
@@ -551,97 +425,60 @@ export function StudentAdmissionForm({ edit, studentId }) {
                   maxLength={12}
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => updateFormField("email", e.target.value)}
-                  placeholder="Enter email address"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone</Label>
-                <Input
-                  id="phone"
-                  value={formData.phone}
-                  onChange={(e) =>
-                    updateFormField("phone", e.target.value.replace(/\D/g, ""))
-                  }
-                  placeholder="Enter phone number"
-                  maxLength={15}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">
-                  Password <span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => updateFormField("password", e.target.value)}
-                  placeholder="Enter password"
-                />
-              </div>
             </div>
 
-            {/* Student Photo Section */}
+            {/* Teacher Photo Section */}
             <div className="border-t pt-6">
               <div className="space-y-4">
                 <Label
                   className="text-lg font-semibold flex items-center gap-2"
-                  htmlFor={"studentImage"}
+                  htmlFor="teacherImage"
                 >
                   <Camera className="h-5 w-5 text-red-700" />
-                  Student Photo <span className="text-red-600">*</span>
+                  Teacher Photo <span className="text-red-600">*</span>
                 </Label>
 
                 <div className="flex flex-col sm:flex-row gap-6 items-start">
                   <div className="flex-1 space-y-2">
                     <Input
-                      id="studentImage"
+                      id="teacherImage"
                       type="file"
                       accept="image/*"
                       onChange={(e) => {
                         console.log(e.target.files);
                         return updateFormField(
-                          "studentImage",
+                          "teacherImage",
                           e.target.files?.[0] || null
                         );
                       }}
                       className="hidden border-dashed border-2 border-gray-300 hover:border-red-400 transition-colors"
                     />
                     <div className="flex items-center gap-2">
-                      {!formData.studentImage && (
+                      {!formData.teacherImage && (
                         <Label
-                          htmlFor="studentImage"
+                          htmlFor="teacherImage"
                           className="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md shadow-md hover:bg-red-700 cursor-pointer transition"
                         >
                           <Camera className="h-4 w-4 mr-2" />
                           Choose Image
                         </Label>
                       )}
-                      {formData.studentImage && (
+                      {formData.teacherImage && (
                         <div className="flex-shrink-0">
                           <div className="relative">
                             <img
                               src={
-                                typeof formData.studentImage === "string"
-                                  ? `${STUDENT_PATH}/${formData.studentImage}`
-                                  : URL.createObjectURL(formData.studentImage)
+                                typeof formData.teacherImage === "string"
+                                  ? `${TEACHER_PATH}/${formData.teacherImage}`
+                                  : URL.createObjectURL(formData.teacherImage)
                               }
-                              alt="Student preview"
+                              alt="Teacher preview"
                               className="w-32 h-40 object-cover border-2 border-gray-200 rounded-lg shadow-sm"
                             />
                             <Button
                               type="button"
                               onClick={() =>
-                                updateFormField("studentImage", null)
+                                updateFormField("teacherImage", null)
                               }
                               className="absolute -top-2 -right-2 h-6 w-6 p-0 bg-red-600 hover:bg-red-700 text-white rounded-full"
                             >
@@ -661,458 +498,189 @@ export function StudentAdmissionForm({ edit, studentId }) {
           </div>
         );
 
-      case 2: // Address
+      case 1: // Contact & Address
         return (
           <div className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="street">Street Address</Label>
-                <Input
-                  id="street"
-                  value={formData.address.street}
-                  onChange={(e) =>
-                    updateFormField("street", e.target.value, "address")
-                  }
-                  placeholder="Enter street address"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="city">
-                  City <span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  id="city"
-                  value={formData.address.city}
-                  onChange={(e) =>
-                    updateFormField("city", e.target.value, "address")
-                  }
-                  placeholder="Enter city"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="state">
-                  State <span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  id="state"
-                  value={formData.address.state}
-                  onChange={(e) =>
-                    updateFormField("state", e.target.value, "address")
-                  }
-                  placeholder="Enter state"
-                />
-              </div>
-
-              <div className="space-y-2 sm:col-span-2 lg:col-span-1">
-                <Label htmlFor="pincode">
-                  Pincode <span className="text-red-600">*</span>
-                </Label>
-                <Input
-                  id="pincode"
-                  value={formData.address.pincode}
-                  onChange={(e) =>
-                    updateFormField(
-                      "pincode",
-                      e.target.value.replace(/\D/g, ""),
-                      "address"
-                    )
-                  }
-                  placeholder="Enter pincode"
-                  maxLength={10}
-                />
-              </div>
-            </div>
-          </div>
-        );
-
-      case 3: // Family Details
-        return (
-          <div className="space-y-8">
-            {/* Guardian Information */}
-            <div className="bg-red-50 p-6 rounded-lg">
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-red-800">
-                <User className="h-5 w-5" />
-                Primary Guardian Information
+            {/* Contact Information */}
+            <div className="bg-blue-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-blue-800">
+                <Phone className="h-5 w-5" />
+                Contact Information
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="guardianName">
-                    Guardian Name <span className="text-red-600">*</span>
+                  <Label htmlFor="email">
+                    Email <span className="text-red-600">*</span>
                   </Label>
                   <Input
-                    id="guardianName"
-                    value={formData.guardian.name}
-                    onChange={(e) =>
-                      updateFormField("name", e.target.value, "guardian")
-                    }
-                    placeholder="Enter guardian name"
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateFormField("email", e.target.value)}
+                    placeholder="Enter email address"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="guardianRelation">
-                    Relation <span className="text-red-600">*</span>
-                  </Label>
-                  <Select
-                    value={formData.guardian.relation}
-                    onValueChange={(value) =>
-                      updateFormField("relation", value, "guardian")
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Relation" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {RELATIONS.map((relation) => (
-                        <SelectItem key={relation} value={relation}>
-                          {relation}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="guardianPhone">
-                    Guardian Phone <span className="text-red-600">*</span>
+                  <Label htmlFor="phone">
+                    Phone <span className="text-red-600">*</span>
                   </Label>
                   <Input
-                    id="guardianPhone"
-                    value={formData.guardian.phone}
+                    id="phone"
+                    value={formData.phone}
                     onChange={(e) =>
                       updateFormField(
                         "phone",
-                        e.target.value.replace(/\D/g, ""),
-                        "guardian"
+                        e.target.value.replace(/\D/g, "")
                       )
                     }
-                    placeholder="Enter guardian phone"
+                    placeholder="Enter phone number"
                     maxLength={15}
                   />
                 </div>
+              </div>
+            </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="guardianEmail">Guardian Email</Label>
+            {/* Address Information */}
+            <div className="bg-green-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-green-800">
+                <MapPin className="h-5 w-5" />
+                Address Information
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div className="space-y-2 sm:col-span-2">
+                  <Label htmlFor="street">Street Address</Label>
                   <Input
-                    id="guardianEmail"
-                    type="email"
-                    value={formData.guardian.email}
+                    id="street"
+                    value={formData.address.street}
                     onChange={(e) =>
-                      updateFormField("email", e.target.value, "guardian")
+                      updateFormField("street", e.target.value, "address")
                     }
-                    placeholder="Enter guardian email"
+                    placeholder="Enter street address"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="guardianOccupation">
-                    Guardian Occupation
+                  <Label htmlFor="city">
+                    City <span className="text-red-600">*</span>
                   </Label>
                   <Input
-                    id="guardianOccupation"
-                    value={formData.guardian.occupation}
+                    id="city"
+                    value={formData.address.city}
                     onChange={(e) =>
-                      updateFormField("occupation", e.target.value, "guardian")
+                      updateFormField("city", e.target.value, "address")
                     }
-                    placeholder="Enter guardian occupation"
+                    placeholder="Enter city"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="guardianAddress">Guardian Address</Label>
+                  <Label htmlFor="state">
+                    State <span className="text-red-600">*</span>
+                  </Label>
                   <Input
-                    id="guardianAddress"
-                    value={formData.guardian.address}
+                    id="state"
+                    value={formData.address.state}
                     onChange={(e) =>
-                      updateFormField("address", e.target.value, "guardian")
+                      updateFormField("state", e.target.value, "address")
                     }
-                    placeholder="Enter guardian address"
+                    placeholder="Enter state"
                   />
                 </div>
-              </div>
-            </div>
 
-            {/* Parents Information */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Mother Information */}
-              <div className="bg-blue-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-blue-800">
-                  Mother Information
-                </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="motherName">Mother Name</Label>
-                    <Input
-                      id="motherName"
-                      value={formData.mother.name}
-                      onChange={(e) =>
-                        updateFormField("name", e.target.value, "mother")
-                      }
-                      placeholder="Enter mother name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="motherPhone">Mother Phone</Label>
-                    <Input
-                      id="motherPhone"
-                      value={formData.mother.phone}
-                      onChange={(e) =>
-                        updateFormField(
-                          "phone",
-                          e.target.value.replace(/\D/g, ""),
-                          "mother"
-                        )
-                      }
-                      placeholder="Enter mother phone"
-                      maxLength={15}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="motherOccupation">Mother Occupation</Label>
-                    <Input
-                      id="motherOccupation"
-                      value={formData.mother.occupation}
-                      onChange={(e) =>
-                        updateFormField("occupation", e.target.value, "mother")
-                      }
-                      placeholder="Enter mother occupation"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Father Information */}
-              <div className="bg-green-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold mb-4 text-green-800">
-                  Father Information
-                </h3>
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fatherName">Father Name</Label>
-                    <Input
-                      id="fatherName"
-                      value={formData.father.name}
-                      onChange={(e) =>
-                        updateFormField("name", e.target.value, "father")
-                      }
-                      placeholder="Enter father name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="fatherPhone">Father Phone</Label>
-                    <Input
-                      id="fatherPhone"
-                      value={formData.father.phone}
-                      onChange={(e) =>
-                        updateFormField(
-                          "phone",
-                          e.target.value.replace(/\D/g, ""),
-                          "father"
-                        )
-                      }
-                      placeholder="Enter father phone"
-                      maxLength={15}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="fatherOccupation">Father Occupation</Label>
-                    <Input
-                      id="fatherOccupation"
-                      value={formData.father.occupation}
-                      onChange={(e) =>
-                        updateFormField("occupation", e.target.value, "father")
-                      }
-                      placeholder="Enter father occupation"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 4: // Previous School
-        return (
-          <div className="space-y-6">
-            {/* Checkbox for previous school */}
-            <div className="flex items-center space-x-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-              <Checkbox
-                id="hasPreviousSchool"
-                checked={formData.hasPreviousSchool}
-                onCheckedChange={(checked) =>
-                  updateFormField("hasPreviousSchool", checked)
-                }
-                className="data-[state=checked]:bg-red-700 data-[state=checked]:border-red-700"
-              />
-              <Label
-                htmlFor="hasPreviousSchool"
-                className="text-sm font-medium text-yellow-800 cursor-pointer"
-              >
-                Student has attended a previous school
-              </Label>
-            </div>
-
-            {formData.hasPreviousSchool && (
-              <div className="bg-gray-50 p-6 rounded-lg border">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-red-700" />
-                  Previous School Details
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="previousSchoolName">
-                      School Name <span className="text-red-600">*</span>
-                    </Label>
-                    <Input
-                      id="previousSchoolName"
-                      value={formData.previousSchool.name}
-                      onChange={(e) =>
-                        updateFormField(
-                          "name",
-                          e.target.value,
-                          "previousSchool"
-                        )
-                      }
-                      placeholder="Enter previous school name"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="mediumOfInstruction">
-                      Medium of Instruction
-                    </Label>
-                    <Input
-                      id="mediumOfInstruction"
-                      value={formData.previousSchool.mediumOfInstruction}
-                      onChange={(e) =>
-                        updateFormField(
-                          "mediumOfInstruction",
-                          e.target.value,
-                          "previousSchool"
-                        )
-                      }
-                      placeholder="Enter medium of instruction"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="board">
-                      Board <span className="text-red-600">*</span>
-                    </Label>
-                    <Input
-                      id="board"
-                      value={formData.previousSchool.board}
-                      onChange={(e) =>
-                        updateFormField(
-                          "board",
-                          e.target.value,
-                          "previousSchool"
-                        )
-                      }
-                      placeholder="Enter board"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="lastClassAttended">
-                      Last Class Attended
-                    </Label>
-                    <Input
-                      id="lastClassAttended"
-                      value={formData.previousSchool.lastClassAttended}
-                      onChange={(e) =>
-                        updateFormField(
-                          "lastClassAttended",
-                          e.target.value,
-                          "previousSchool"
-                        )
-                      }
-                      placeholder="Enter last class attended"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="tcNumber">TC Number</Label>
-                    <Input
-                      id="tcNumber"
-                      value={formData.previousSchool.tcNumber}
-                      onChange={(e) =>
-                        updateFormField(
-                          "tcNumber",
-                          e.target.value,
-                          "previousSchool"
-                        )
-                      }
-                      placeholder="Enter TC number"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="tcIssueDate">TC Issue Date</Label>
-                    <Input
-                      id="tcIssueDate"
-                      type="date"
-                      value={formData.previousSchool.tcIssueDate}
-                      onChange={(e) =>
-                        updateFormField(
-                          "tcIssueDate",
-                          e.target.value,
-                          "previousSchool"
-                        )
-                      }
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-6 space-y-2">
-                  <Label htmlFor="marksheet">Marksheet Upload</Label>
+                <div className="space-y-2 sm:col-span-2 lg:col-span-1">
+                  <Label htmlFor="pincode">
+                    Pincode <span className="text-red-600">*</span>
+                  </Label>
                   <Input
-                    id="marksheet"
-                    type="file"
-                    accept=".pdf,.jpg,.jpeg,.png"
+                    id="pincode"
+                    value={formData.address.pincode}
                     onChange={(e) =>
                       updateFormField(
-                        "marksheetPath",
-                        e.target.files?.[0] || null,
-                        "previousSchool"
+                        "pincode",
+                        e.target.value.replace(/\D/g, ""),
+                        "address"
                       )
                     }
-                    className="border-dashed border-2 border-gray-300 hover:border-red-400 transition-colors"
+                    placeholder="Enter pincode"
+                    maxLength={10}
                   />
-                  {formData.previousSchool.marksheetPath &&
-                    typeof formData.previousSchool.marksheetPath !==
-                      "string" && (
-                      <div className="text-sm text-gray-600 mt-2 p-2 bg-white rounded border">
-                        <span className="font-medium">Selected:</span>{" "}
-                        {formData.previousSchool.marksheetPath.name}
-                      </div>
-                    )}
                 </div>
               </div>
-            )}
-
-            {!formData.hasPreviousSchool && (
-              <div className="text-center py-12 text-gray-500">
-                <BookOpen className="mx-auto h-12 w-12 text-gray-300 mb-4" />
-                <p className="text-lg">
-                  No previous school information required
-                </p>
-                <p className="text-sm">
-                  Check the box above if the student has attended a previous
-                  school
-                </p>
-              </div>
-            )}
+            </div>
           </div>
         );
 
-      case 5: // Documents
+      case 2: // Professional Information
+        return (
+          <div className="space-y-6">
+            <div className="bg-purple-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-purple-800">
+                <BookOpen className="h-5 w-5" />
+                Professional Information
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <Label htmlFor="qualification">
+                    Qualification <span className="text-red-600">*</span>
+                  </Label>
+                  <Input
+                    id="qualification"
+                    value={formData.qualification}
+                    onChange={(e) =>
+                      updateFormField("qualification", e.target.value)
+                    }
+                    placeholder="Enter highest qualification (e.g., B.Ed, M.A)"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="experience">
+                    Experience (Years) <span className="text-red-600">*</span>
+                  </Label>
+                  <Input
+                    id="experience"
+                    type="number"
+                    min="0"
+                    max="50"
+                    value={formData.experience}
+                    onChange={(e) =>
+                      updateFormField(
+                        "experience",
+                        parseInt(e.target.value) || 0
+                      )
+                    }
+                    placeholder="Enter years of experience"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Additional Professional Details */}
+            <div className="bg-orange-50 p-6 rounded-lg">
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-orange-800">
+                <GraduationCap className="h-5 w-5" />
+                Additional Information
+              </h3>
+              <div className="text-sm text-orange-800 space-y-2">
+                <p>
+                  • Please ensure all qualification documents are ready for
+                  upload
+                </p>
+                <p>
+                  • Experience certificate from previous institutions may be
+                  required
+                </p>
+                <p>
+                  • Professional development certificates can be uploaded in the
+                  documents section
+                </p>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3: // Documents
         return (
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -1167,18 +735,12 @@ export function StudentAdmissionForm({ edit, studentId }) {
                           Document Name <span className="text-red-600">*</span>
                         </Label>
                         <Input
-                          disabled={
-                            edit &&
-                            formData?.documents?.some(
-                              (d) => d.name === doc.name && d.file === doc.file
-                            )
-                          }
                           id={`docName-${index}`}
                           value={doc.name}
                           onChange={(e) =>
                             updateDocument(index, "name", e.target.value)
                           }
-                          placeholder="e.g., Birth Certificate, Aadhar Card"
+                          placeholder="e.g., Degree Certificate, Experience Letter"
                         />
                       </div>
 
@@ -1267,15 +829,17 @@ export function StudentAdmissionForm({ edit, studentId }) {
             {/* Required documents list */}
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
               <h4 className="font-medium text-blue-900 mb-2">
-                Commonly Required Documents:
+                Commonly Required Documents for Teachers:
               </h4>
               <ul className="text-sm text-blue-800 space-y-1">
-                <li>• Birth Certificate</li>
-                <li>• Transfer Certificate (if applicable)</li>
-                <li>• Aadhar Card</li>
+                <li>• Educational Qualification Certificates</li>
+                <li>• Teaching Qualification (B.Ed/M.Ed)</li>
+                <li>• Experience Certificates</li>
+                <li>• Identity Proof (Aadhar Card/PAN Card)</li>
+                <li>• Address Proof</li>
                 <li>• Passport Size Photographs</li>
                 <li>• Medical Certificate</li>
-                <li>• Previous Year Mark Sheet</li>
+                <li>• No Objection Certificate (if applicable)</li>
               </ul>
             </div>
           </div>
@@ -1286,12 +850,10 @@ export function StudentAdmissionForm({ edit, studentId }) {
     }
   };
 
-  // Fetch student data if editing
+  // Fetch teacher data if editing
   useEffect(() => {
-    if (edit && studentId) {
-      fetchStudentData(studentId);
-    }
-  }, [edit, studentId]);
+    fetchTeacherData();
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
@@ -1303,7 +865,7 @@ export function StudentAdmissionForm({ edit, studentId }) {
               <UserPlus className="h-8 w-8 text-red-700" />
               <div>
                 <h1 className="text-xl font-bold text-gray-900">
-                  {edit ? "Edit Student" : "Admission Form"}
+                  {edit ? "Edit Teacher" : "Recruit Teacher"}
                 </h1>
                 <p className="text-sm text-gray-500">
                   Step {currentStep + 1} of {steps.length}
@@ -1469,7 +1031,7 @@ export function StudentAdmissionForm({ edit, studentId }) {
                     ) : (
                       <>
                         <Save className="h-4 w-4" />
-                        {edit ? "Update Student" : "Submit Admission"}
+                        {edit ? "Update Teacher" : "Submit Recruitment"}
                       </>
                     )}
                   </Button>

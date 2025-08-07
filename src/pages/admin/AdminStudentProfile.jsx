@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,20 +10,26 @@ import FamilyInfo from "@/components/admin/students/student-profile/FamilyInfo";
 import AddressInfo from "@/components/admin/students/student-profile/AddressInfo";
 import DocumentsInfo from "@/components/admin/students/student-profile/DocumentsInfo";
 import { getStudent } from "@/services/student.service";
+import useStudentStore from "@/store/useStudentStore";
 
 export function AdminStudentProfile() {
   const { studentId } = useParams();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
+  const getStudentById = useStudentStore((state) => state.getStudentById);
+  const navigate = useNavigate();
 
   // Fetch student data
   useEffect(() => {
     const fetchStudentData = async () => {
       try {
         setLoading(true);
-        const studentData = await getStudent(studentId);
-        setStudent(studentData);
+        let student = await getStudentById(studentId);
+        if (!student) {
+          student = await getStudent(studentId);
+        }
+        setStudent(student);
         setLoading(false);
       } catch (error) {
         console.error("Error fetching student data:", error);
@@ -35,11 +41,10 @@ export function AdminStudentProfile() {
     if (studentId) {
       fetchStudentData();
     }
-  }, [studentId]);
+  }, [studentId, getStudentById]);
 
   const handleEditStudent = () => {
-    // Navigate to edit page or open edit modal
-    console.log("Edit student:", student);
+    navigate(`/school/front-desk/edit-student/${student.studentId}`);
   };
 
   const goBack = () => {

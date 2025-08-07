@@ -16,7 +16,7 @@ const createFormDataStudent = (formData) => {
   formDataObj.append("studentClass", formData.studentClass || "");
   formDataObj.append("admissionNumber", formData.admissionNumber || "");
   formDataObj.append("admissionDate", formData.admissionDate || "");
-  formDataObj.append("hasPreviousSchool", formData.hasPreviousSchool);
+  formDataObj.append("hasPreviousSchool", formData.hasPreviousSchool || false);
 
   // File upload
   if (formData.studentImage) {

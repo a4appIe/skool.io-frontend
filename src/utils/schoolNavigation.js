@@ -10,6 +10,7 @@ import {
   LampDesk,
   List,
   Pen,
+  PersonStanding,
   Settings,
   User,
 } from "lucide-react";
@@ -31,12 +32,22 @@ export const schoolMenuItems = [
     ],
   },
   {
+    title: "Human Resource",
+    icon: PersonStanding,
+    subItems: [
+      { title: "Dashboard", url: "/school/hr" },
+      { title: "Recruit", url: "/school/hr/recruit" },
+      // { title: "Teacher", url: "/school/hr/teacher" },
+      // { title: "Operator", url: "/school/hr/operator" },
+    ],
+  },
+  {
     title: "User Management",
     icon: User,
     subItems: [
       { title: "Student", url: "/school/students" },
-      { title: "Teacher", url: "/school/teacher" },
-      { title: "Operator", url: "/school/operator" },
+      { title: "Teacher", url: "/school/teachers" },
+      { title: "Operator", url: "/school/operators" },
     ],
   },
   {

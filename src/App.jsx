@@ -29,12 +29,17 @@ import { AdminFrontDeskDashboard } from "./pages/admin/admin-front-desk/AdminFro
 import AdminAdmission from "./pages/admin/admin-front-desk/AdminAdmission";
 import AdminFrontDesk from "./pages/admin/AdminFrontDesk";
 import { AdminStudentProfile } from "./pages/admin/AdminStudentProfile";
+import AdminHR from "./pages/admin/AdminHR";
+import AdminHRDashboard from "./pages/admin/admin-human-resource/AdminHRDashboard";
+import AdminHRRecruit from "./pages/admin/admin-human-resource/AdminHRRecruit";
+import { AdminTeacherProfile } from "./pages/admin/AdminTeacherProfile";
 
 const App = () => (
   <>
     <Routes>
       {/* Public Routes */}
       <Route path="/" element={<PublicLayout />}></Route>
+
       {/* Admin Routes */}
       <Route
         path="/school"
@@ -55,9 +60,12 @@ const App = () => (
           <Route path="profile/:studentId" element={<AdminStudentProfile />} />
         </Route>
         <Route path="subjects" element={<AdminSubjects />} />
-        <Route path="teachers" element={<AdminTeachers />} />
+        <Route path="teachers">
+          <Route index element={<AdminTeachers />} />
+          <Route path="profile/:teacherId" element={<AdminTeacherProfile />} />
+        </Route>
+        <Route path="operators" element={<AdminTeachers />} />
         <Route path="front-desk" element={<AdminFrontDesk />}>
-          {/* Add more front desk related routes here */}
           <Route index element={<AdminFrontDeskDashboard />} />
           <Route path="admission" element={<AdminAdmission edit={false} />} />
           <Route
@@ -65,8 +73,16 @@ const App = () => (
             element={<AdminAdmission edit={true} />}
           />
         </Route>
-        {/* <Route path="*" element={<NotFound />} /> */}
+        <Route path="hr" element={<AdminHR />}>
+          <Route index element={<AdminHRDashboard />} />
+          <Route path="recruit" element={<AdminHRRecruit />} />
+          <Route
+            path="edit-teacher/:teacherId"
+            element={<AdminHRRecruit edit={true} />}
+          />
+        </Route>
       </Route>
+
       {/* Teacher Routes */}
       <Route
         path="/teacher"
@@ -81,8 +97,8 @@ const App = () => (
         <Route path="examinations" element={<TeacherExaminations />} />
         <Route path="schedule" element={<TeacherSchedule />} />
         <Route path="notices" element={<TeacherNotices />} />
-        {/* <Route path="*" element={<NotFound />} /> */}
       </Route>
+
       {/* Student Routes */}
       <Route
         path="/student"
@@ -97,18 +113,12 @@ const App = () => (
         <Route path="examinations" element={<StudentExaminations />} />
         <Route path="schedule" element={<StudentSchedule />} />
         <Route path="notices" element={<StudentNotices />} />
-        {/* <Route path="*" element={<NotFound />} /> */}
       </Route>
+
       {/* Super Admin Routes */}
       <Route path="/admin" element={<SuperAdminDashboard />}>
         <Route index element={<SuperAdminDashboard />} />
-        {/* <Route path="attendance" element={<StudentAttendance />} />
-        <Route path="examinations" element={<StudentExaminations />} />
-        <Route path="schedule" element={<StudentSchedule />} />
-        <Route path="notices" element={<StudentNotices />} /> */}
-        {/* <Route path="*" element={<NotFound />} /> */}
       </Route>
-      {/* Add more routes as needed */}
       <Route path="/add" element={<AddSchool />} />
     </Routes>
   </>

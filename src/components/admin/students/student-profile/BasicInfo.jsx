@@ -1,7 +1,6 @@
-/* eslint-disable no-constant-binary-expression */
 import { Card } from "@/components/ui/card";
 import {
-    AtSign,
+  AtSign,
   Badge,
   Bookmark,
   Calendar,
@@ -27,10 +26,11 @@ const BasicInfo = ({ student }) => {
             <div className="relative">
               <img
                 src={
-                  `${STUDENT_PATH}/${student.studentImage}` ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    student.name
-                  )}&background=ef4444&color=fff&size=200`
+                  student.studentImage
+                    ? `${STUDENT_PATH}/${student.studentImage}`
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        student.name
+                      )}&background=ef4444&color=fff&size=200`
                 }
                 alt={student.name}
                 className="w-32 h-32 lg:w-40 lg:h-40 rounded-full object-cover border-4 border-white shadow-lg"
@@ -45,15 +45,15 @@ const BasicInfo = ({ student }) => {
 
           {/* Basic Info */}
           <div className="lg:col-span-3 text-white">
-              <h2 className="text-3xl font-bold mb-2 uppercase">{student.name}</h2>
+            <h2 className="text-3xl font-bold mb-2 uppercase">
+              {student.name}
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div>
                 <div className="space-y-2 bg-red-50 border border-black w-fit px-5 py-2 rounded-lg text-red-700">
                   <div className="flex items-center gap-2">
                     <GraduationCap className="h-4 w-4" />
-                    <span className="">
-                      {student.studentClass.className}
-                    </span>
+                    <span className="">{student.studentClass.className}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <AtSign className="h-4 w-4" />

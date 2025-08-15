@@ -84,7 +84,7 @@ export const schoolMenuItems = [
   {
     title: "Schedule",
     icon: List,
-    subItems: [{ title: "Current Schedule", url: "/school/schedule/messages" }],
+    subItems: [{ title: "Current Schedule", url: "/school/schedule" }],
   },
   {
     title: "Fees Management",

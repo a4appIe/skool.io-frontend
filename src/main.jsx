@@ -1,4 +1,4 @@
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
@@ -20,8 +20,9 @@ axios.interceptors.request.use(
 );
 
 createRoot(document.getElementById("root")).render(
-  <BrowserRouter>
-    {/* <StrictMode> */}
+  <Suspense fallback={<div>Loading...</div>}>
+    <BrowserRouter>
+      {/* <StrictMode> */}
       <App />
       <Toaster
         toastOptions={{
@@ -40,6 +41,7 @@ createRoot(document.getElementById("root")).render(
         richColors
         position="top-right"
       />
-    {/* </StrictMode> */}
-  </BrowserRouter>
+      {/* </StrictMode> */}
+    </BrowserRouter>
+  </Suspense>
 );

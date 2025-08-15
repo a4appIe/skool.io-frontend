@@ -1,6 +1,8 @@
 import { AdminSidebar } from "@/components/admin/sidebar/AdminSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { getAllClasses } from "@/services/class.service";
+import { getAllPeriods } from "@/services/periods.service";
+import { getAllSchedules } from "@/services/schedule.service";
 import { getAllStudents } from "@/services/student.service";
 import { getAllSubjects } from "@/services/subject.service";
 import { getAllTeachers } from "@/services/teacher.service";
@@ -15,6 +17,8 @@ export default function AdminLayout() {
       await getAllSubjects();
       await getAllStudents();
       await getAllTeachers();
+      await getAllSchedules();
+      await getAllPeriods();
       // await
     } catch (error) {
       console.error("Error fetching data:", error);

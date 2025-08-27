@@ -33,6 +33,9 @@ import AdminHR from "./pages/admin/AdminHR";
 import AdminHRDashboard from "./pages/admin/admin-human-resource/AdminHRDashboard";
 import AdminHRRecruit from "./pages/admin/admin-human-resource/AdminHRRecruit";
 import { AdminTeacherProfile } from "./pages/admin/AdminTeacherProfile";
+import AttendanceDetails from "./pages/admin/attendance/AttendanceDetails";
+import AdminStudentAttendance from "./pages/admin/attendance/AdminStudentAttendance";
+import AdminTeacherAttendance from "./pages/admin/attendance/AdminTeacherAttendance";
 
 const App = () => (
   <>
@@ -50,7 +53,11 @@ const App = () => (
         }
       >
         <Route index element={<AdminDashboard />} />
-        <Route path="attendance" element={<AdminAttendance />} />
+        <Route path="attendance" element={<AdminAttendance />}>
+          <Route path="student" element={<AdminStudentAttendance />} />
+          <Route path="teacher" element={<AdminTeacherAttendance />} />
+          <Route path=":type/details/:id" element={<AttendanceDetails />} />
+        </Route>
         <Route path="classes" element={<AdminClasses />} />
         <Route path="examinations" element={<AdminExaminations />} />
         <Route path="notices" element={<AdminNotices />} />

@@ -42,18 +42,6 @@ const StudentCard = ({ student }) => {
       >
         {/* Student Image & Status */}
         <div className="relative p-6 pb-4">
-          {/* // TODO ----- BADGE FOR ROLL NUMBER */}
-          {/* <div className="absolute top-1 right-1">
-            <Badge
-              variant={"outlined"}
-              className={
-                "text-xs font-medium bg-green-100 text-green-800 border-green-200"
-              }
-            >
-              {"@" + (student.username)}
-            </Badge>
-          </div> */}
-
           <div className="flex flex-col items-center">
             <div className="relative mb-3">
               <img
@@ -123,7 +111,7 @@ const StudentCard = ({ student }) => {
           </div>
 
           {/* Guardian Info */}
-          <div className="bg-gray-50 rounded-lg p-3 mt-3">
+          <div className="bg-gray-50 rounded-lg p-3 mt-3 border border-gray-500">
             <div className="text-xs text-gray-600 mb-1">Guardian</div>
             <div className="font-medium text-sm text-gray-900">
               {student.guardian.name}
@@ -176,13 +164,6 @@ const StudentCard = ({ student }) => {
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Student
               </DropdownMenuItem>
-              {/* <DropdownMenuItem
-                onClick={() => handleDeleteStudent(student._id)}
-                className="text-red-600 focus:text-red-600"
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </DropdownMenuItem> */}
               <DeleteModal student={student} />
             </DropdownMenuContent>
           </DropdownMenu>

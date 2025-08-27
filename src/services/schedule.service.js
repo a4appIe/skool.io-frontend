@@ -20,17 +20,11 @@ export const createSchedule = async (scheduleData) => {
       toast.success("Schedule created successfully!", {
         description: `Schedule ${response.data.data.title} has been created.`,
       });
-    } else {
-      toast.error("Failed to create schedule.", {
-        description:
-          response.data.message ||
-          "An error occurred while creating the schedule.",
-      });
     }
   } catch (error) {
     console.error("Error creating schedule:", error);
     toast.error("Error creating schedule.", {
-      description: "An error occurred while creating the schedule.",
+      description: error.response?.data?.message || "An error occurred while creating the schedule.",
     });
     throw error;
   }
@@ -51,16 +45,10 @@ export const updateScheduleById = async (id, scheduleData) => {
       toast.success("Schedule updated successfully!", {
         description: `Schedule ${updatedSchedule.title} has been updated.`,
       });
-    } else {
-      toast.error("Failed to update schedule.", {
-        description:
-          response.data.message ||
-          "An error occurred while updating the schedule.",
-      });
     }
   } catch (error) {
     toast.error("Error updating schedule.", {
-      description: "An error occurred while updating the schedule.",
+      description: error.response?.data?.message || "An error occurred while updating the schedule.",
     });
     throw error;
   }
@@ -78,19 +66,12 @@ export const deleteScheduleById = async (schedule) => {
       toast.success("Schedule deleted successfully!", {
         description: `Schedule with title ${schedule.title} has been deleted.`,
       });
-    } else {
-      toast.error("Failed to delete schedule.", {
-        description:
-          response.data.message ||
-          "An error occurred while deleting the schedule.",
-      });
     }
   } catch (error) {
     toast.error("Error deleting schedule.", {
-      description: "An error occurred while deleting the schedule.",
+      description: error.response?.data?.message || "An error occurred while deleting the schedule.",
     });
     console.error("Error deleting schedule:", error);
-    throw error;
   }
 };
 

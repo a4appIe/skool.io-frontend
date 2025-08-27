@@ -900,7 +900,6 @@ export default function AdminSchedule() {
         handleCloseSheet();
       } catch (error) {
         console.error("Error creating schedule:", error);
-        toast.error("Failed to create schedule. Please try again.");
       }
     },
     [
@@ -1504,11 +1503,12 @@ export default function AdminSchedule() {
                   Date <span className="text-red-500">*</span>
                 </Label>
                 <Input
+                  disabled={state.isEditMode}
                   id="date"
                   type="date"
                   value={state.formData.date}
                   onChange={(e) => handleInputChange("date", e.target.value)}
-                  className="w-full"
+                  className="w-full disabled:bg-gray-300 disabled:cursor-not-allowed"
                 />
                 {state.formErrors.date && (
                   <p className="text-sm text-red-500">
@@ -1523,13 +1523,14 @@ export default function AdminSchedule() {
                     Start Time <span className="text-red-500">*</span>
                   </Label>
                   <Input
+                    disabled={state.isEditMode}
                     id="startTime"
                     type="time"
                     value={state.formData.startTime}
                     onChange={(e) =>
                       handleInputChange("startTime", e.target.value)
                     }
-                    className="w-full"
+                    className="w-full disabled:bg-gray-300 disabled:cursor-not-allowed"
                   />
                   {state.formErrors.startTime && (
                     <p className="text-sm text-red-500">
@@ -1543,12 +1544,14 @@ export default function AdminSchedule() {
                     End Time <span className="text-red-500">*</span>
                   </Label>
                   <Input
+                    disabled={state.isEditMode}
                     id="endTime"
                     type="time"
                     value={state.formData.endTime}
                     onChange={(e) =>
                       handleInputChange("endTime", e.target.value)
                     }
+                    className="w-full disabled:bg-gray-300 disabled:cursor-not-allowed"
                   />
                   {state.formErrors.endTime && (
                     <p className="text-sm text-red-500">

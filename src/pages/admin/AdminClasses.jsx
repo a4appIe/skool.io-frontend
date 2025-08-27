@@ -13,7 +13,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Trash2, Eye, MoreHorizontal, Users, PersonStanding } from "lucide-react";
+import {
+  Trash2,
+  Eye,
+  MoreHorizontal,
+  Users,
+  PersonStanding,
+} from "lucide-react";
 import { ClassForm } from "@/components/admin/class/ClassForm";
 import useClassStore from "@/store/useClassStore";
 import { formatDate } from "@/utils/formatDate";

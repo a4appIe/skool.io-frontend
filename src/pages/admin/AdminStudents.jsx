@@ -14,8 +14,6 @@ import useStudentStore from "@/store/useStudentStore";
 import { useNavigate } from "react-router-dom";
 import StudentCard from "@/components/admin/students/StudentCard";
 
-const classList = useClassStore.getState().classes || [];
-
 const sortOptions = [
   { value: "name", label: "Name (A-Z)" },
   { value: "name_desc", label: "Name (Z-A)" },
@@ -24,11 +22,11 @@ const sortOptions = [
 ];
 
 export default function AdminStudents() {
+  const classList = useClassStore((state) => state.classes) || [];
   const students = useStudentStore((state) => state.getStudents());
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("all");
   const [sortBy, setSortBy] = useState("name");
-  const [statusFilter, setStatusFilter] = useState("all");
   const navigate = useNavigate();
 
   // Filtering and sorting logic
@@ -56,11 +54,6 @@ export default function AdminStudents() {
       );
     }
 
-    // Status filter - Updated to handle "all"
-    if (statusFilter && statusFilter !== "all") {
-      filtered = filtered.filter((student) => student.status === statusFilter);
-    }
-
     // Sorting
     filtered.sort((a, b) => {
       switch (sortBy) {
@@ -78,12 +71,11 @@ export default function AdminStudents() {
     });
 
     return filtered;
-  }, [students, searchTerm, selectedClass, sortBy, statusFilter]);
+  }, [students, searchTerm, selectedClass, sortBy]);
 
   const clearFilters = () => {
     setSearchTerm("");
     setSelectedClass("all");
-    setStatusFilter("all");
     setSortBy("name");
   };
 
@@ -91,7 +83,6 @@ export default function AdminStudents() {
   const activeFiltersCount = [
     searchTerm,
     selectedClass !== "all" ? selectedClass : "",
-    statusFilter !== "all" ? statusFilter : "",
   ].filter(Boolean).length;
 
   return (
@@ -158,19 +149,6 @@ export default function AdminStudents() {
                 </SelectContent>
               </Select>
 
-              {/* Status Filter - FIXED */}
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[160px] border-gray-200 flex-1">
-                  <Filter className="h-4 w-4" />
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Status</SelectItem>
-                  <SelectItem value="Active">Active</SelectItem>
-                  <SelectItem value="Inactive">Inactive</SelectItem>
-                </SelectContent>
-              </Select>
-
               {/* Sort */}
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="w-full sm:w-[160px] border-gray-200 flex-1">
@@ -209,13 +187,11 @@ export default function AdminStudents() {
               No students found
             </h3>
             <p className="text-gray-500 mb-6">
-              {searchTerm || selectedClass !== "all" || statusFilter !== "all"
+              {searchTerm || selectedClass !== "all"
                 ? "Try adjusting your search criteria"
                 : "No students have been added yet"}
             </p>
-            {(searchTerm ||
-              selectedClass !== "all" ||
-              statusFilter !== "all") && (
+            {(searchTerm || selectedClass !== "all") && (
               <Button variant="outline" onClick={clearFilters}>
                 Clear Filters
               </Button>

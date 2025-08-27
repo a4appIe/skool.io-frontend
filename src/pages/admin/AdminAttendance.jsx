@@ -1,11 +1,8 @@
 import React from "react";
+import { Outlet } from "react-router-dom";
 
 const AdminAttendance = () => {
-  return (
-    <div>
-      <h1>Admin Attendance</h1>
-    </div>
-  );
+  return <Outlet />;
 };
 
 export default AdminAttendance;

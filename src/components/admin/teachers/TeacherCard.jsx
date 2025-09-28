@@ -42,16 +42,6 @@ const TeacherCard = ({ teacher }) => {
       >
         {/* Teacher Image & Status */}
         <div className="relative p-6 pb-4">
-          <div className="absolute top-1 right-1">
-            {/* <Badge
-              variant={"outlined"}
-              className={
-                "text-xs font-medium bg-green-100 text-green-800 border-green-200"
-              }
-            >
-              {"RN: " + (teacher.rollNumber || 0)}
-            </Badge> */}
-          </div>
 
           <div className="flex flex-col items-center">
             <div className="relative mb-3">

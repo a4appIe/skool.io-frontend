@@ -71,13 +71,12 @@ export const loginSchool = async (schoolData) => {
 };
 
 export const getAllStudents = async () => {
-  const { setStudents } = useStudentStore.getState();
   // Simulate API call
   try {
     const response = await axios.get(`${API_URL}/student/students`);
     console.log(response);
     if (response.data.success) {
-      setStudents(response.data.data);
+      return (response.data.data);
     } else {
       toast.error("Failed to fetch students.", {
         description:

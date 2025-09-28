@@ -35,10 +35,10 @@ import {
   registerStudent,
   updateStudent,
 } from "@/services/student.service";
-import useClassStore from "@/store/useClassStore";
 import { useNavigate } from "react-router-dom";
 import createFormDataStudentEdit from "./fns/createFormDataStudentEdit";
 import createFormDataStudent from "./fns/createFormDataStudent";
+import { getAllClasses } from "@/services/class.service";
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 const CATEGORIES = ["General", "OBC", "SC", "ST", "Other"];
@@ -147,13 +147,11 @@ export function StudentAdmissionForm({ edit, studentId }) {
   );
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const classList = useClassStore((state) => state.classes) || []; // Fetch classes from store
+  const [classList, setClassList] = useState([]);
   const navigate = useNavigate();
   const STUDENT_PATH = import.meta.env.VITE_STUDENT_PATH;
 
-  // TODO - HANDLE FETCHING TEACHER DATA
   const fetchStudentData = async () => {
-    setLoading(true);
     try {
       const studentData = await getStudent(studentId);
       setFormData({
@@ -162,9 +160,11 @@ export function StudentAdmissionForm({ edit, studentId }) {
       });
     } catch (error) {
       console.error("Error fetching student data:", error);
-    } finally {
-      setLoading(false);
     }
+  };
+  const fetchClasses = async () => {
+    let classes = await getAllClasses();
+    setClassList(classes);
   };
 
   // Validation functions
@@ -1288,9 +1288,12 @@ export function StudentAdmissionForm({ edit, studentId }) {
 
   // Fetch student data if editing
   useEffect(() => {
+    setLoading(true);
     if (edit && studentId) {
+      fetchClasses();
       fetchStudentData(studentId);
     }
+    setLoading(false);
   }, [edit, studentId]);
 
   return (

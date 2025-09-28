@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -9,10 +9,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, SortAsc, UserPlus, Users, X } from "lucide-react";
-import useClassStore from "@/store/useClassStore";
-import useStudentStore from "@/store/useStudentStore";
 import { useNavigate } from "react-router-dom";
 import StudentCard from "@/components/admin/students/StudentCard";
+import { getAllStudents } from "@/services/student.service";
+import { getAllClasses } from "@/services/class.service";
 
 const sortOptions = [
   { value: "name", label: "Name (A-Z)" },
@@ -22,12 +22,28 @@ const sortOptions = [
 ];
 
 export default function AdminStudents() {
-  const classList = useClassStore((state) => state.classes) || [];
-  const students = useStudentStore((state) => state.getStudents());
+  const [classList, setClassList] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("all");
   const [sortBy, setSortBy] = useState("name");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchStudents() {
+      let studentList = await getAllStudents();
+      setStudents(studentList);
+    }
+    async function fetchClasses() {
+      let classes = await getAllClasses();
+      setClassList(classes);
+    }
+    setLoading(true);
+    fetchStudents();
+    fetchClasses();
+    setLoading(false);
+  }, []);
 
   // Filtering and sorting logic
   const filteredAndSortedStudents = useMemo(() => {
@@ -84,6 +100,15 @@ export default function AdminStudents() {
     searchTerm,
     selectedClass !== "all" ? selectedClass : "",
   ].filter(Boolean).length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-red-700"></div>
+        <h1>Loading</h1>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">

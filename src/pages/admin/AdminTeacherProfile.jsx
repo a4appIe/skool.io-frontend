@@ -44,10 +44,7 @@ export function AdminTeacherProfile() {
     const fetchTeacherData = async () => {
       try {
         setLoading(true);
-        let teacher = await getTeacherById(teacherId);
-        if (!teacher) {
-          teacher = await getTeacher(teacherId);
-        }
+        let teacher = await getTeacher(teacherId);
         setTeacher(teacher);
       } catch (error) {
         console.error("Error fetching teacher data:", error);
@@ -129,7 +126,11 @@ export function AdminTeacherProfile() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between py-4">
             <div className="flex items-center gap-3">
-              <Button variant="ghost" onClick={goBack} className="mr-2">
+              <Button
+                variant="ghost"
+                onClick={goBack}
+                className="mr-2 bg-red-600 rounded-md hover:bg-red-700 text-white hover:text-white"
+              >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
               <GraduationCap className="h-6 w-6 text-red-700" />
@@ -142,7 +143,7 @@ export function AdminTeacherProfile() {
             </div>
             <Button
               onClick={handleEditTeacher}
-              className="bg-red-700 hover:bg-red-800 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile
@@ -175,17 +176,6 @@ export function AdminTeacherProfile() {
                       )}&background=ef4444&color=fff&size=200`;
                     }}
                   />
-                  <div className="absolute -bottom-2 -right-2 bg-white rounded-full p-2 shadow-md">
-                    <Badge
-                      className={`text-xs font-medium ${
-                        teacher.status === "Active"
-                          ? "bg-green-100 text-green-800 border-green-200"
-                          : "bg-red-100 text-red-800 border-red-200"
-                      }`}
-                    >
-                      {teacher.status}
-                    </Badge>
-                  </div>
                 </div>
               </div>
 
@@ -271,7 +261,7 @@ export function AdminTeacherProfile() {
         </Card>
 
         {/* Tabs Section */}
-        <Card className="shadow-lg border bg-red-50 border-red-200">
+        <Card className="shadow-lg border bg-red-50 border-red-200 p-0 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <div className="border-b border-gray-200 bg-gray-50">
               <TabsList className="grid w-full grid-cols-4 h-auto p-0 bg-white rounded-none">

@@ -97,7 +97,7 @@ export function AdminStudentProfile() {
             </div>
             <Button
               onClick={handleEditStudent}
-              className="bg-red-700 hover:bg-red-800 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Profile

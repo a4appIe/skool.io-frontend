@@ -125,8 +125,8 @@ const App = () => (
       {/* Super Admin Routes */}
       <Route path="/admin" element={<SuperAdminDashboard />}>
         <Route index element={<SuperAdminDashboard />} />
+        <Route path="add" element={<AddSchool />} />
       </Route>
-      <Route path="/add" element={<AddSchool />} />
     </Routes>
   </>
 );

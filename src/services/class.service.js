@@ -2,7 +2,7 @@ import useClassStore from "@/store/useClassStore";
 import axios from "axios";
 import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_API_URL;
-const { addClass, setClasses, deleteClass, updateClass } =
+const { addClass, deleteClass, updateClass } =
   useClassStore.getState();
 
 export const createClass = async (classData) => {
@@ -108,7 +108,8 @@ export const getAllClasses = async () => {
     const response = await axios.get(`${API_URL}/class/classes`);
     console.log(response);
     if (response.data.success) {
-      setClasses(response.data.data);
+      console.log(response.data.data)
+      return (response.data.data);
     } else {
       toast.error("Failed to fetch classes.", {
         description:

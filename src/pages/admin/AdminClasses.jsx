@@ -21,9 +21,10 @@ import {
   PersonStanding,
 } from "lucide-react";
 import { ClassForm } from "@/components/admin/class/ClassForm";
-import useClassStore from "@/store/useClassStore";
 import { formatDate } from "@/utils/formatDate";
 import DeleteModal from "@/components/admin/class/DeleteModal";
+import { useEffect, useState } from "react";
+import { getAllClasses } from "@/services/class.service";
 
 // Button handlers can be improved with actual modals/dialogs as needed.
 function handleDelete(cls) {
@@ -40,7 +41,19 @@ function handleDetails(cls) {
 }
 
 export default function AdminClasses() {
-  const classes = useClassStore((state) => state.classes);
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useEffect(() => {
+    async function fetchClasses() {
+      setLoading(true);
+      let classesData = await getAllClasses();
+      setClasses(classesData || []);
+      setLoading(false);
+    }
+    fetchClasses();
+  }, []);
+
+  if (loading) return <h1>LOADING...</h1>;
 
   return (
     <div className="bg-gray-50 px-4 py-7 md:px-8">
@@ -115,7 +128,7 @@ export default function AdminClasses() {
                 </div>
                 <div className="flex flex-col items-start gap-2 text-gray-700 text-sm">
                   <span className="inline-block rounded bg-gray-100 px-1.5 py-0.5 text-xs text-gray-500">
-                    Incharge: {cls.attendee || "N/A"}
+                    Incharge: {cls?.attendee?.name || "N/A"}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 text-gray-700 text-sm">

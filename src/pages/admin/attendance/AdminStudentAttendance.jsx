@@ -738,7 +738,7 @@ export default function AdminStudentAttendance() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 lg:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <Card className="shadow-sm border-0 bg-white/80 backdrop-blur-sm">
+        <Card className="shadow-sm border-0 bg-white/80 backdrop-blur-sm p-0">
           <CardContent className="p-4 lg:p-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
               <div className="space-y-2">
@@ -978,7 +978,7 @@ export default function AdminStudentAttendance() {
         </div>
 
         {/* Enhanced Responsive Students Display */}
-        <Card className="shadow-lg border-0">
+        <Card className="shadow-lg border-0 p-0">
           <CardContent className="p-0">
             {filteredStudents.length === 0 ? (
               <div className="text-center py-12">

@@ -10,14 +10,12 @@ import FamilyInfo from "@/components/admin/students/student-profile/FamilyInfo";
 import AddressInfo from "@/components/admin/students/student-profile/AddressInfo";
 import DocumentsInfo from "@/components/admin/students/student-profile/DocumentsInfo";
 import { getStudent } from "@/services/student.service";
-import useStudentStore from "@/store/useStudentStore";
 
 export function AdminStudentProfile() {
   const { studentId } = useParams();
   const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("personal");
-  const getStudentById = useStudentStore((state) => state.getStudentById);
   const navigate = useNavigate();
 
   // Fetch student data
@@ -25,10 +23,7 @@ export function AdminStudentProfile() {
     const fetchStudentData = async () => {
       try {
         setLoading(true);
-        let student = await getStudentById(studentId);
-        if (!student) {
-          student = await getStudent(studentId);
-        }
+        let student = await getStudent(studentId);
         setStudent(student);
         setLoading(false);
       } catch (error) {
@@ -41,10 +36,10 @@ export function AdminStudentProfile() {
     if (studentId) {
       fetchStudentData();
     }
-  }, [studentId, getStudentById]);
+  }, [studentId]);
 
   const handleEditStudent = () => {
-    navigate(`/school/front-desk/edit-student/${student.studentId}`);
+    navigate(`/school/front-desk/edit-student/${student._id}`);
   };
 
   const goBack = () => {
@@ -116,7 +111,7 @@ export function AdminStudentProfile() {
         <BasicInfo student={student} />
 
         {/* Tabs Section */}
-        <Card className="shadow-lg border bg-red-50 border-red-200">
+        <Card className="shadow-lg border bg-red-50 border-red-200 p-0 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* TAB TRIGGERS */}
             <div className="border-b border-gray-200">

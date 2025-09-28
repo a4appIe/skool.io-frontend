@@ -27,11 +27,11 @@ const StudentCard = ({ student }) => {
   const navigate = useNavigate();
 
   const handleEditNavigate = () => {
-    navigate(`/school/front-desk/edit-student/${student.studentId}`);
+    navigate(`/school/front-desk/edit-student/${student._id}`);
   };
 
   const handleProfileNavigate = () => {
-    navigate(`/school/students/profile/${student.studentId}`);
+    navigate(`/school/students/profile/${student._id}`);
   };
 
   return (

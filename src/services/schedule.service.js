@@ -93,6 +93,7 @@ export const getAllSchedules = async () => {
     console.log(response);
     if (response.data.success) {
       setSchedules(response.data.data);
+      return response.data.data;
     } else {
       toast.error("Failed to fetch schedules.", {
         description:

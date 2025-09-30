@@ -6,34 +6,7 @@ import "react-big-calendar/lib/css/react-big-calendar.css";
 import * as XLSX from "xlsx";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
-import {
-  Calendar as CalendarIcon,
-  Plus,
-  Edit3,
-  Trash2,
-  Save,
-  X,
-  Users,
-  Filter,
   BookOpen,
   Clock,
   Loader2,
@@ -41,36 +14,34 @@ import {
   PartyPopper,
   AlertCircle,
   RefreshCw,
-  FileSpreadsheet,
-  CheckCircle,
-  CalendarX,
 } from "lucide-react";
-import useClassStore from "@/store/useClassStore";
-import useScheduleStore from "@/store/useScheduleStore";
-import usePeriodsStore from "@/store/usePeriodStore";
 import { toast } from "sonner";
 import {
   createSchedule,
   deleteScheduleById,
+  getAllSchedules,
   updateScheduleById,
 } from "@/services/schedule.service";
-import AddPeriods from "@/components/admin/schedule/AddPeriods";
 import FormSheet from "@/components/admin/schedule/FormSheet";
 import Header from "@/components/admin/schedule/Header";
+import ScheduleLegend from "@/components/admin/schedule/ScheduleLegend";
+import ScheduleStats from "@/components/admin/schedule/ScheduleStats";
+import ScheduleFileStatus from "@/components/admin/schedule/ScheduleFileStatus";
+import ScheduleFilters from "@/components/admin/schedule/ScheduleFilters";
+import { getAllClasses } from "@/services/class.service";
+import { getAllPeriods } from "@/services/periods.service";
 
-// **Initialize moment localizer**
+// Initialize moment localizer
 const localizer = momentLocalizer(moment);
 
-// **Constants**
+// Constants
 const SCHEDULE_TYPES = {
-  // !-- DONE
   EVENT: "event",
   HOLIDAY: "holiday",
   CLASS: "class",
 };
 
 const CALENDAR_COLORS = {
-  // !-- DONE
   [SCHEDULE_TYPES.CLASS]: "#3b82f6",
   [SCHEDULE_TYPES.EVENT]: "#dc2626",
   [SCHEDULE_TYPES.HOLIDAY]: "#f59e0b",
@@ -78,7 +49,6 @@ const CALENDAR_COLORS = {
 };
 
 const DAY_MAPPING = {
-  // !-- DONE
   Sunday: 0,
   sunday: 0,
   SUNDAY: 0,
@@ -117,7 +87,6 @@ const DAY_MAPPING = {
 };
 
 const initialFormState = {
-  // !-- DONE
   type: SCHEDULE_TYPES.EVENT,
   title: "",
   description: "",
@@ -126,9 +95,8 @@ const initialFormState = {
   endTime: "",
 };
 
-// **ENHANCED: Get priority events that should override class periods**
+// ENHANCED: Get priority events that should override class periods
 const getPriorityEventDetails = (date, priorityEvents) => {
-  // !-- DONE
   const dateStr = moment(date).format("YYYY-MM-DD");
   return priorityEvents.filter((event) => {
     const eventDate = moment(event.start).format("YYYY-MM-DD");
@@ -136,9 +104,8 @@ const getPriorityEventDetails = (date, priorityEvents) => {
   });
 };
 
-// **ENHANCED: Process periods from Zustand store with holiday & event filtering + Excel time parsing**
+// ENHANCED: Process periods from state with holiday & event filtering + Excel time parsing
 const usePeriodsProcessor = () => {
-  // !-- DONE
   const [classPeriodsEvents, setClassPeriodsEvents] = useState([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingError, setProcessingError] = useState(null);
@@ -194,8 +161,8 @@ const usePeriodsProcessor = () => {
     // Fallback: extract numbers
     const timeNumbers = timeStr.match(/(\d{1,2}):?(\d{0,2})/);
     if (timeNumbers) {
-      const hours = parseInt(timeNumbers);
-      const minutes = parseInt(timeNumbers || "0");
+      const hours = parseInt(timeNumbers[1]);
+      const minutes = parseInt(timeNumbers[2] || "0");
       if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
         console.log(`🔧 DEBUG: Fallback time parsing:`, `${hours}:${minutes}`);
         return moment().hour(hours).minute(minutes);
@@ -206,17 +173,18 @@ const usePeriodsProcessor = () => {
 
   // **MAIN FUNCTION: Process class periods with priority events filtering + enhanced time parsing**
   const processClassPeriodsFromStore = useCallback(
-    // !-- DONE
     async (
       classId,
       periods,
       academicYear = moment().year(),
       priorityEvents = []
     ) => {
+      // FIXED: Clear class periods when switching to "all" or no class selected
       if (!classId || classId === "all" || !periods || periods.length === 0) {
         setClassPeriodsEvents([]);
         setHiddenPeriodsCount(0);
         setHiddenPeriodsByType({ holidays: 0, events: 0 });
+        setProcessingError(null);
         return [];
       }
 
@@ -268,7 +236,7 @@ const usePeriodsProcessor = () => {
             throw new Error("No sheets found in Excel file");
           }
 
-          const firstSheet = workbook.Sheets[workbook.SheetNames];
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
           const rawData = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
 
           // **ENHANCED: Process each period individually with enhanced time parsing**
@@ -544,9 +512,8 @@ const usePeriodsProcessor = () => {
   };
 };
 
-// **Responsive calendar hook**
+// Responsive calendar hook
 const useResponsiveCalendar = () => {
-  // !-- DONE
   const [screenSize, setScreenSize] = useState({
     width: typeof window !== "undefined" ? window.innerWidth : 1024,
     isMobile: typeof window !== "undefined" ? window.innerWidth < 768 : false,
@@ -571,9 +538,8 @@ const useResponsiveCalendar = () => {
   };
 };
 
-// **Form validation hook**
+// Form validation hook
 const useFormValidation = () => {
-  // !-- DONE
   const validateForm = useCallback((formData) => {
     const errors = {};
     const requiredFields = {
@@ -609,7 +575,15 @@ const useFormValidation = () => {
 };
 
 export default function AdminSchedule() {
-  // **State management**
+  // CONVERTED: Replace Zustand with useState
+  const [classes, setClasses] = useState([]);
+  const [schedules, setSchedules] = useState([]);
+  const [periods, setPeriods] = useState([]);
+  const [isLoadingClasses, setIsLoadingClasses] = useState(false);
+  const [isLoadingSchedules, setIsLoadingSchedules] = useState(false);
+  const [isLoadingPeriods, setIsLoadingPeriods] = useState(false);
+
+  // State management
   const [state, setState] = useState({
     isSheetOpen: false,
     selectedPeriod: null,
@@ -621,7 +595,7 @@ export default function AdminSchedule() {
     academicYear: moment().year(),
   });
 
-  // **Custom hooks**
+  // Custom hooks
   const { height, defaultView, isMobile } = useResponsiveCalendar();
   const { validateForm } = useFormValidation();
   const {
@@ -633,72 +607,68 @@ export default function AdminSchedule() {
     processClassPeriodsFromStore,
   } = usePeriodsProcessor();
 
-  // **Store hooks**
-  const { classes = [], getClasses } = useClassStore((state) => state);
+  // CONVERTED: API functions to replace Zustand store actions
+  const fetchClasses = useCallback(async () => {
+    setIsLoadingClasses(true);
+    try {
+      const classes = await getAllClasses();
+      setClasses(classes || []);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+      toast.error("Failed to fetch classes");
+      setClasses([]);
+    } finally {
+      setIsLoadingClasses(false);
+    }
+  }, []);
 
-  const { schedules: allSchedules = [], getSchedules } = useScheduleStore(
-    (state) => state
-  );
+  const fetchSchedules = useCallback(async () => {
+    setIsLoadingSchedules(true);
+    try {
+      const schedules = await getAllSchedules();
+      setSchedules(schedules || []);
+    } catch (error) {
+      console.error("Error fetching schedules:", error);
+      toast.error("Failed to fetch schedules");
+      setSchedules([]);
+    } finally {
+      setIsLoadingSchedules(false);
+    }
+  }, []);
 
-  const { periods = [], getPeriods } = usePeriodsStore((state) => state);
+  const fetchPeriods = useCallback(async () => {
+    setIsLoadingPeriods(true);
+    try {
+      const periods = await getAllPeriods();
+      setPeriods(periods || []);
+    } catch (error) {
+      console.error("Error fetching periods:", error);
+      toast.error("Failed to fetch periods");
+      setPeriods([]);
+    } finally {
+      setIsLoadingPeriods(false);
+    }
+  }, []);
 
-  // **Memoized data**
+  // Memoized data
   const CLASSES_LIST = useMemo(
-    // !-- DONE
     () => [{ _id: "all", className: "All Schedules" }, ...classes],
     [classes]
   );
 
-  // **Filter schedules based on selected class**
-  const filteredSchedules = useMemo(() => {
-    // !-- DONE
-    return allSchedules.filter((schedule) => {
-      if (state.selectedClassFilter === "all") {
-        return (
-          schedule.type === SCHEDULE_TYPES.EVENT ||
-          schedule.type === SCHEDULE_TYPES.HOLIDAY
-        );
-      }
-
-      if (
-        schedule.type === SCHEDULE_TYPES.EVENT ||
-        schedule.type === SCHEDULE_TYPES.HOLIDAY
-      ) {
-        return true;
-      }
-
-      if (schedule.type === SCHEDULE_TYPES.CLASS && schedule.class) {
-        return schedule.class._id === state.selectedClassFilter;
-      }
-
-      return false;
-    });
-  }, [allSchedules, state.selectedClassFilter]);
-
-  // **ENHANCED: Get priority events (holidays and events) for filtering**
-  const priorityEvents = useMemo(() => {
-    // !-- DONE
-    return filteredSchedules
-      .filter(
-        (schedule) =>
-          schedule.type === SCHEDULE_TYPES.HOLIDAY ||
-          schedule.type === SCHEDULE_TYPES.EVENT
-      )
-      .map((schedule) => ({
+  // FIXED: Simplified schedule filtering - ensure all schedules are included properly
+  const allScheduleEvents = useMemo(() => {
+    console.log("🔍 DEBUG: All schedules received:", schedules.length);
+    
+    return schedules.map((schedule, index) => {
+      console.log(`🔍 DEBUG: Processing schedule ${index + 1}:`, {
         id: schedule._id,
-        title:
-          schedule.title ||
-          (schedule.type === SCHEDULE_TYPES.HOLIDAY ? "Holiday" : "Event"),
-        start: new Date(schedule.startTime),
-        end: new Date(schedule.endTime),
         type: schedule.type,
-      }));
-  }, [filteredSchedules]);
+        title: schedule.title,
+        startTime: schedule.startTime,
+        endTime: schedule.endTime
+      });
 
-  // **ENHANCED: Merge with priority events - holidays and events override class periods**
-  const calendarEvents = useMemo(() => {
-    // !-- DONE
-    const scheduleEvents = filteredSchedules.map((schedule) => {
       const startTime = new Date(schedule.startTime);
       const endTime = new Date(schedule.endTime);
 
@@ -708,7 +678,7 @@ export default function AdminSchedule() {
         const teacherName = schedule.teacher?.name || "Unknown Teacher";
         title = `${subjectName} - ${teacherName}`;
       } else {
-        title = schedule.title || "Event";
+        title = schedule.title || (schedule.type === SCHEDULE_TYPES.HOLIDAY ? "Holiday" : "Event");
       }
 
       return {
@@ -728,16 +698,90 @@ export default function AdminSchedule() {
         },
       };
     });
+  }, [schedules]);
 
-    // Merge with class periods from Excel files (already filtered to exclude priority event dates)
-    const allEvents = [...scheduleEvents, ...classPeriodsEvents];
+  // FIXED: Filter schedules based on class selection
+  const filteredScheduleEvents = useMemo(() => {
+    console.log("🔍 DEBUG: Filtering schedule events, selectedClassFilter:", state.selectedClassFilter);
+    
+    const filtered = allScheduleEvents.filter((event) => {
+      // Always show events and holidays regardless of class filter
+      if (
+        event.resource.type === SCHEDULE_TYPES.EVENT ||
+        event.resource.type === SCHEDULE_TYPES.HOLIDAY
+      ) {
+        console.log("✅ DEBUG: Including event/holiday:", event.title);
+        return true;
+      }
+
+      // For class schedules
+      if (event.resource.type === SCHEDULE_TYPES.CLASS) {
+        if (state.selectedClassFilter === "all") {
+          console.log("✅ DEBUG: Including class schedule (all selected):", event.title);
+          return true;
+        }
+        
+        const shouldInclude = event.resource.classId === state.selectedClassFilter;
+        console.log(`${shouldInclude ? '✅' : '❌'} DEBUG: Class schedule filter result:`, {
+          title: event.title,
+          classId: event.resource.classId,
+          selectedFilter: state.selectedClassFilter,
+          included: shouldInclude
+        });
+        return shouldInclude;
+      }
+
+      return false;
+    });
+
+    console.log("🔍 DEBUG: Filtered schedule events count:", filtered.length);
+    return filtered;
+  }, [allScheduleEvents, state.selectedClassFilter]);
+
+  // ENHANCED: Get priority events (holidays and events) for filtering periods
+  const priorityEvents = useMemo(() => {
+    const priority = allScheduleEvents
+      .filter(
+        (event) =>
+          event.resource.type === SCHEDULE_TYPES.HOLIDAY ||
+          event.resource.type === SCHEDULE_TYPES.EVENT
+      )
+      .map((event) => ({
+        id: event.id,
+        title: event.title,
+        start: event.start,
+        end: event.end,
+        type: event.resource.type,
+      }));
+
+    console.log("🔍 DEBUG: Priority events for period filtering:", priority.length);
+    return priority;
+  }, [allScheduleEvents]);
+
+  // ENHANCED: Final calendar events - merge filtered schedules with class periods
+  const calendarEvents = useMemo(() => {
+    console.log("🔍 DEBUG: Merging events:");
+    console.log("  - Filtered schedule events:", filteredScheduleEvents.length);
+    console.log("  - Class period events:", classPeriodsEvents.length);
+
+    const allEvents = [...filteredScheduleEvents, ...classPeriodsEvents];
+    
+    console.log("🔍 DEBUG: Final merged events:", allEvents.length);
+    
+    // Debug: Log each event type
+    const eventCounts = {
+      events: allEvents.filter(e => e.resource?.type === SCHEDULE_TYPES.EVENT).length,
+      holidays: allEvents.filter(e => e.resource?.type === SCHEDULE_TYPES.HOLIDAY).length,
+      classes: allEvents.filter(e => e.resource?.type === SCHEDULE_TYPES.CLASS).length,
+    };
+    
+    console.log("🔍 DEBUG: Event type counts:", eventCounts);
 
     return allEvents;
-  }, [filteredSchedules, classPeriodsEvents]);
+  }, [filteredScheduleEvents, classPeriodsEvents]);
 
-  // **ENHANCED: Statistics with priority event filtering info**
+  // ENHANCED: Statistics with priority event filtering info
   const statistics = useMemo(() => {
-    // !-- DONE
     const classEvents = calendarEvents.filter(
       (e) => e.resource?.type === SCHEDULE_TYPES.CLASS
     );
@@ -757,13 +801,12 @@ export default function AdminSchedule() {
     };
   }, [calendarEvents, hiddenPeriodsCount, hiddenPeriodsByType]);
 
-  // **Fetch data on mount**
+  // CONVERTED: Fetch data on mount
   useEffect(() => {
-    // !-- DONE
     const fetchData = async () => {
       setState((prev) => ({ ...prev, isDataLoading: true }));
       try {
-        await Promise.all([getClasses(), getSchedules(), getPeriods()]);
+        await Promise.all([fetchClasses(), fetchSchedules(), fetchPeriods()]);
       } catch (error) {
         toast.error(`Failed to fetch schedule data: ${error.message}`);
       } finally {
@@ -771,23 +814,23 @@ export default function AdminSchedule() {
       }
     };
     fetchData();
-  }, [getClasses, getSchedules, getPeriods]);
+  }, [fetchClasses, fetchSchedules, fetchPeriods]);
 
-  // **ENHANCED: Auto-process periods on class change with priority event filtering**
+  // ENHANCED: Auto-process periods on class change with priority event filtering
   useEffect(() => {
-    // !-- DONE
     const handleClassChange = () => {
-      if (state.selectedClassFilter !== "all" && periods.length > 0) {
-        processClassPeriodsFromStore(
-          state.selectedClassFilter,
-          periods,
-          state.academicYear,
-          priorityEvents
-        );
-      }
+      processClassPeriodsFromStore(
+        state.selectedClassFilter,
+        periods,
+        state.academicYear,
+        priorityEvents
+      );
     };
 
-    handleClassChange();
+    // Only process if periods are loaded
+    if (periods.length > 0 || state.selectedClassFilter === "all") {
+      handleClassChange();
+    }
   }, [
     state.selectedClassFilter,
     state.academicYear,
@@ -796,14 +839,12 @@ export default function AdminSchedule() {
     processClassPeriodsFromStore,
   ]);
 
-  // **Event handlers**
+  // Event handlers
   const updateState = useCallback((updates) => {
-    // !-- DONE
     setState((prev) => ({ ...prev, ...updates }));
   }, []);
 
   const handleInputChange = useCallback(
-    // !-- DONE
     (field, value) => {
       updateState({
         formData: { ...state.formData, [field]: value },
@@ -814,7 +855,6 @@ export default function AdminSchedule() {
   );
 
   const handleSelectSlot = useCallback(
-    // !-- DONE
     ({ start, end }) => {
       updateState({
         selectedPeriod: null,
@@ -833,7 +873,6 @@ export default function AdminSchedule() {
   );
 
   const handleSelectEvent = useCallback(
-    // !-- DONE
     (event) => {
       if (event.resource?.type === SCHEDULE_TYPES.CLASS) {
         if (event.resource?.isFromFile) {
@@ -871,7 +910,6 @@ export default function AdminSchedule() {
   );
 
   const handleCloseSheet = useCallback(() => {
-    // !-- DONE
     updateState({
       isSheetOpen: false,
       selectedPeriod: null,
@@ -882,7 +920,6 @@ export default function AdminSchedule() {
   }, [updateState]);
 
   const handleSubmit = useCallback(
-    // !-- DONE
     async (e) => {
       e.preventDefault();
       const validation = validateForm(state.formData);
@@ -895,20 +932,23 @@ export default function AdminSchedule() {
       try {
         if (state.isEditMode) {
           await updateScheduleById(state.selectedPeriod.id, state.formData);
+          toast.success("Schedule updated successfully!");
         } else {
           await createSchedule(state.formData);
+          toast.success("Schedule created successfully!");
         }
-        await getSchedules();
+        await fetchSchedules();
         handleCloseSheet();
       } catch (error) {
-        console.error("Error creating schedule:", error);
+        console.error("Error creating/updating schedule:", error);
+        toast.error("Failed to save schedule. Please try again.");
       }
     },
     [
       state.formData,
       validateForm,
       updateState,
-      getSchedules,
+      fetchSchedules,
       handleCloseSheet,
       state.isEditMode,
       state.selectedPeriod,
@@ -916,19 +956,19 @@ export default function AdminSchedule() {
   );
 
   const handleDeleteSchedule = useCallback(async () => {
-    // !-- DONE
     if (!state.selectedPeriod) return;
     try {
-      await deleteScheduleById(state.selectedPeriod);
-      await getSchedules();
+      await deleteScheduleById(state.selectedPeriod.id);
+      await fetchSchedules();
       handleCloseSheet();
+      toast.success("Schedule deleted successfully!");
     } catch (error) {
       console.error("Error deleting schedule:", error);
+      toast.error("Failed to delete schedule. Please try again.");
     }
-  }, [state.selectedPeriod, getSchedules, handleCloseSheet]);
+  }, [state.selectedPeriod, fetchSchedules, handleCloseSheet]);
 
   const handleClassFilterChange = useCallback(
-    // !-- DONE
     (value) => {
       updateState({ selectedClassFilter: value });
     },
@@ -936,24 +976,21 @@ export default function AdminSchedule() {
   );
 
   const handlePeriodsRefresh = useCallback(
-    // !-- DONE
     async (classId) => {
       if (classId && classId !== "all") {
         toast.info("Refreshing class periods...");
-        await getPeriods();
-        await processClassPeriodsFromStore(classId, periods, priorityEvents);
+        await fetchPeriods();
+        await processClassPeriodsFromStore(classId, periods, state.academicYear, priorityEvents);
         toast.success("Class periods updated!");
       }
     },
-    [getPeriods, processClassPeriodsFromStore, periods, priorityEvents]
+    [fetchPeriods, processClassPeriodsFromStore, periods, priorityEvents, state.academicYear]
   );
 
-  // **Styling functions**
+  // Styling functions
   const eventStyleGetter = useCallback(
-    // !-- DONE
     (event) => {
       const eventType = event.resource?.type || SCHEDULE_TYPES.EVENT;
-      console.log(event);
       const backgroundColor =
         event.title.split(" ")[0].toLowerCase() === "lunch"
           ? "tomato"
@@ -978,7 +1015,6 @@ export default function AdminSchedule() {
   );
 
   const EventComponent = useCallback(({ event }) => {
-    // !-- DONE
     const eventType = event.resource?.type || SCHEDULE_TYPES.EVENT;
 
     const subtitleMap = {
@@ -1000,7 +1036,6 @@ export default function AdminSchedule() {
   }, []);
 
   const getClassName = useCallback(
-    // !-- DONE
     (classId) => {
       const cls = CLASSES_LIST.find((c) => c._id === classId);
       return cls?.className || "Unknown Class";
@@ -1008,12 +1043,15 @@ export default function AdminSchedule() {
     [CLASSES_LIST]
   );
 
-  // **Loading state**
-  // !-- DONE
-  const isLoading = state.isDataLoading || isProcessing;
+  // CONVERTED: Loading state includes individual loading states
+  const isLoading =
+    state.isDataLoading ||
+    isProcessing ||
+    isLoadingClasses ||
+    isLoadingSchedules ||
+    isLoadingPeriods;
 
   if (isLoading) {
-    // !-- DONE
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <div className="text-center space-y-4">
@@ -1050,7 +1088,6 @@ export default function AdminSchedule() {
   }
 
   if (processingError) {
-    // !-- DONE
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
@@ -1076,7 +1113,6 @@ export default function AdminSchedule() {
   }
 
   const stats = [
-    // !-- DONE
     {
       title: "Total Items",
       value: statistics.total,
@@ -1109,7 +1145,6 @@ export default function AdminSchedule() {
   ];
 
   return (
-    // !-- DONE
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 lg:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
@@ -1121,188 +1156,27 @@ export default function AdminSchedule() {
         />
 
         {/* Filters */}
-        <Card className="shadow-sm border-l-4 border-l-blue-500">
-          <CardContent className="p-4">
-            <div className="flex flex-col xl:flex-row xl:items-center gap-4">
-              <div className="flex items-center gap-2 min-w-0">
-                <Filter className="h-5 w-5 text-blue-600 flex-shrink-0" />
-                <Label className="font-semibold text-gray-700 whitespace-nowrap">
-                  Filters:
-                </Label>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 flex-1">
-                <div className="flex-1 max-w-sm">
-                  <Label className="text-sm text-gray-600 mb-1 block">
-                    Class
-                  </Label>
-                  <Select
-                    value={state.selectedClassFilter}
-                    onValueChange={handleClassFilterChange}
-                  >
-                    <SelectTrigger className="w-full border-blue-200 focus:border-blue-400 transition-colors">
-                      <SelectValue placeholder="Select a class" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CLASSES_LIST.map((cls) => (
-                        <SelectItem key={cls._id} value={cls._id}>
-                          <div className="flex items-center gap-2">
-                            {cls._id === "all" ? (
-                              <Users className="h-4 w-4 text-blue-600" />
-                            ) : (
-                              <BookOpen className="h-4 w-4 text-gray-600" />
-                            )}
-                            {cls.className}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-2 text-sm">
-                <Badge variant="secondary" className="bg-gray-100">
-                  {statistics.total} items showing
-                </Badge>
-
-                {state.selectedClassFilter !== "all" && (
-                  <div className="flex gap-1">
-                    <Badge className="bg-blue-100 text-blue-800 border-blue-200">
-                      Class Mode Active
-                    </Badge>
-                    {hiddenPeriodsCount > 0 && (
-                      <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-                        <CalendarX className="h-3 w-3 mr-1" />
-                        {hiddenPeriodsCount} Hidden
-                      </Badge>
-                    )}
-                    {isProcessing && (
-                      <Badge className="bg-yellow-100 text-yellow-800 border-yellow-200">
-                        <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                        Processing...
-                      </Badge>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ScheduleFilters
+          state={state}
+          handleClassFilterChange={handleClassFilterChange}
+          CLASSES_LIST={CLASSES_LIST}
+          isProcessing={isProcessing}
+          statistics={statistics}
+          hiddenPeriodsCount={hiddenPeriodsCount}
+        />
 
         {/* File Status */}
-        {state.selectedClassFilter !== "all" && (
-          <Card
-            className={`shadow-sm border-l-4 ${
-              classPeriodsEvents.length > 0
-                ? "border-l-green-500 bg-green-50/50"
-                : "border-l-orange-500 bg-orange-50/50"
-            }`}
-          >
-            <CardContent className="p-4">
-              <div className="flex items-start gap-3">
-                {classPeriodsEvents.length > 0 ? (
-                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                ) : (
-                  <AlertCircle className="h-5 w-5 text-orange-600 mt-0.5 flex-shrink-0" />
-                )}
-                <div className="flex-1">
-                  <h4
-                    className={`font-semibold ${
-                      classPeriodsEvents.length > 0
-                        ? "text-green-800"
-                        : "text-orange-800"
-                    }`}
-                  >
-                    {classPeriodsEvents.length > 0
-                      ? `Class view: ${getClassName(state.selectedClassFilter)}`
-                      : `No periods found: ${getClassName(
-                          state.selectedClassFilter
-                        )} `}
-                  </h4>
-                  <p
-                    className={`text-sm mt-1 ${
-                      classPeriodsEvents.length > 0
-                        ? "text-green-700"
-                        : "text-orange-700"
-                    }`}
-                  >
-                    {classPeriodsEvents.length > 0
-                      ? `Found ${classPeriodsEvents.length} recurring periods.`
-                      : `You may have not uploaded the periods.`}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        <ScheduleFileStatus
+          state={state}
+          classPeriodsEvents={classPeriodsEvents}
+          getClassName={getClassName}
+        />
 
         {/* Enhanced Statistics */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {stats.map((stat) => (
-            <Card
-              key={stat.title}
-              className="shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
-            >
-              <CardContent className="p-4 lg:p-6">
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-10 h-10 lg:w-12 lg:h-12 bg-gradient-to-r ${stat.gradient} rounded-lg flex items-center justify-center`}
-                  >
-                    <stat.icon className="h-5 w-5 lg:h-6 lg:w-6 text-white" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="text-xs lg:text-sm font-medium text-gray-500 uppercase tracking-wide truncate">
-                      {stat.title}
-                    </p>
-                    <p className="text-xl lg:text-3xl font-bold text-gray-900">
-                      {stat.value}
-                    </p>
-                    {stat.subtitle && (
-                      <p className="text-xs text-gray-500 flex items-center gap-1">
-                        <FileSpreadsheet className="h-3 w-3" />
-                        {stat.subtitle}
-                      </p>
-                    )}
-                    {stat.warning && (
-                      <p className="text-xs text-orange-600 flex items-center gap-1">
-                        <CalendarX className="h-3 w-3" />
-                        {stat.warning}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <ScheduleStats stats={stats} />
 
         {/* Enhanced Legend */}
-        <Card className="shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-              <h3 className="font-semibold text-gray-700">Legend:</h3>
-              <div className="flex flex-wrap gap-2">
-                {state.selectedClassFilter !== "all" && (
-                  <>
-                    <Badge className="bg-blue-600 text-white text-xs">
-                      <BookOpen className="h-3 w-3 mr-1" />
-                      Class Periods
-                    </Badge>
-                  </>
-                )}
-                <Badge className="bg-red-600 text-white text-xs">
-                  <PartyPopper className="h-3 w-3 mr-1" />
-                  Events
-                </Badge>
-                <Badge className="bg-orange-500 text-white text-xs">
-                  <Hotel className="h-3 w-3 mr-1" />
-                  Holidays
-                </Badge>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <ScheduleLegend state={state} />
 
         {/* Calendar */}
         <Card className="shadow-lg border-0">

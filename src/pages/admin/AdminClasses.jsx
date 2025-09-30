@@ -149,7 +149,7 @@ export default function AdminClasses() {
                 Details
               </Button>
               <div className="flex gap-2">
-                <ClassForm edit={true} id={cls._id} />
+                <ClassForm edit={true} cls={cls} />
                 <DeleteModal cls={cls} />
               </div>
             </CardFooter>

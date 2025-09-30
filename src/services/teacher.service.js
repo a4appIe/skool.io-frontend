@@ -78,6 +78,7 @@ export const getAllTeachers = async () => {
     console.log(response);
     if (response.data.success) {
       setTeachers(response.data.data);
+      return response.data.data;
     } else {
       return toast.error("Failed to fetch teachers.", {
         description:

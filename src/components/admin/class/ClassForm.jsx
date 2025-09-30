@@ -30,71 +30,13 @@ import {
   Edit,
 } from "lucide-react";
 import { createClass, updateClassById } from "@/services/class.service";
-import useClassStore from "@/store/useClassStore";
+import { getAllTeachers } from "@/services/teacher.service";
 
-// Mock attendee list - Replace with your actual data source
-const attendeeList = [
-  {
-    id: 1,
-    name: "Ms. Sarah Johnson",
-    department: "Mathematics",
-    email: "sarah.johnson@school.edu",
-  },
-  {
-    id: 2,
-    name: "Mr. David Smith",
-    department: "Science",
-    email: "david.smith@school.edu",
-  },
-  {
-    id: 3,
-    name: "Mrs. Emily Davis",
-    department: "English",
-    email: "emily.davis@school.edu",
-  },
-  { id: 4, name: "Mr. Michaeledu" },
-  {
-    id: 5,
-    name: "Ms. Jennifer Wilson",
-    department: "Art",
-    email: "jennifer.wilson@school.edu",
-  },
-  {
-    id: 6,
-    name: "Mr. Robert Taylor",
-    department: "Physical Education",
-    email: "robert.taylor@school.edu",
-  },
-  {
-    id: 7,
-    name: "Mrs. Lisa Anderson",
-    department: "Music",
-    email: "lisa.anderson@school.edu",
-  },
-  {
-    id: 8,
-    name: "Mr. James Martinez",
-    department: "Computer Science",
-    email: "james.martinez@school.edu",
-  },
-  {
-    id: 9,
-    name: "Ms. Amanda Garcia",
-    department: "Spanish",
-    email: "amanda.garcia@school.edu",
-  },
-  {
-    id: 10,
-    name: "Mr. Christopher Lee",
-    department: "Chemistry",
-    email: "christopher.lee@school.edu",
-  },
-];
-
-export function ClassForm({ edit = false, id = null }) {
+export function ClassForm({ edit = false, cls = null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const editClass = useClassStore((state) => state.getClassById(id));
+  const [attendeeList, setAttendeeList] = useState([]);
+  const editClass = cls;
 
   // Form state management
   const [formData, setFormData] = useState({
@@ -103,13 +45,22 @@ export function ClassForm({ edit = false, id = null }) {
     attendee: "",
   });
 
+  useEffect(() => {
+    async function fetchAttendees() {
+      let attendees = await getAllTeachers();
+      console.log(attendees);
+      setAttendeeList(attendees || []);
+    }
+    fetchAttendees();
+  }, []);
+
   // Sync data when editing and sheet gets opened!
   useEffect(() => {
     if (isOpen && edit && editClass) {
       setFormData({
         className: editClass.className || "",
         classCode: editClass.classCode || "",
-        attendee: editClass.attendee || "",
+        attendee: editClass.attendee?._id || "",
       });
     } else if (isOpen && !edit) {
       setFormData({
@@ -118,7 +69,7 @@ export function ClassForm({ edit = false, id = null }) {
         attendee: "",
       });
     }
-  }, [isOpen, edit, editClass, id]);
+  }, [isOpen, edit, editClass]);
 
   // Handle input changes
   const handleInputChange = (field, value) => {
@@ -169,7 +120,7 @@ export function ClassForm({ edit = false, id = null }) {
 
   // Get selected attendee details for display
   const getSelectedAttendee = () => {
-    return attendeeList.find((att) => att.id.toString() === formData.attendee);
+    return attendeeList.find((att) => att._id.toString() === formData.attendee);
   };
 
   return (
@@ -189,17 +140,6 @@ export function ClassForm({ edit = false, id = null }) {
             Add New Class
           </Button>
         )}
-        {/* <Button className="bg-red-700 hover:bg-red-800 text-white shadow">
-          <Plus className="h-4 w-4 mr-2" />
-          {edit ? "Edit Class" : "Add New Class"}
-        </Button>
-        <Button
-          size="sm"
-          variant="outline"
-          className="border-gray-300 text-gray-700 hover:border-green-700 hover:text-green-700"
-        >
-          <Edit className="h-4 w-4" />
-        </Button> */}
       </SheetTrigger>
       <SheetContent
         side="right"
@@ -343,13 +283,16 @@ export function ClassForm({ edit = false, id = null }) {
                           </SelectTrigger>
                           <SelectContent className="max-h-60">
                             {attendeeList.map((attendee) => (
-                              <SelectItem key={attendee.id} value={attendee.id}>
+                              <SelectItem
+                                key={attendee._id}
+                                value={attendee._id}
+                              >
                                 <div className="flex flex-col">
                                   <span className="font-medium">
                                     {attendee.name}
                                   </span>
                                   <span className="text-xs text-gray-500">
-                                    {attendee.department} • {attendee.email}
+                                    {attendee?.username}
                                   </span>
                                 </div>
                               </SelectItem>
@@ -371,7 +314,7 @@ export function ClassForm({ edit = false, id = null }) {
                                 {getSelectedAttendee()?.name}
                               </p>
                               <p className="text-xs text-gray-600">
-                                {getSelectedAttendee()?.department} •{" "}
+                                {getSelectedAttendee()?.username} •{" "}
                                 {getSelectedAttendee()?.email}
                               </p>
                             </div>

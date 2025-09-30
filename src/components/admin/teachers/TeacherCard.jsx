@@ -27,11 +27,11 @@ const TeacherCard = ({ teacher }) => {
   const navigate = useNavigate();
 
   const handleEditNavigate = () => {
-    navigate(`/school/hr/edit-teacher/${teacher.teacherId}`);
+    navigate(`/school/hr/edit-teacher/${teacher._id}`);
   };
 
   const handleProfileNavigate = () => {
-    navigate(`/school/teachers/profile/${teacher.teacherId}`);
+    navigate(`/school/teachers/profile/${teacher._id}`);
   };
 
   return (

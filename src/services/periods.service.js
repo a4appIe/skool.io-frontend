@@ -26,6 +26,7 @@ export async function getAllPeriods() {
     if (response.data?.success) {
       usePeriodStore.getState().setPeriods(response.data.data);
     }
+    return response.data.data;
   } catch (error) {
     toast.error("Failed to retrieve class periods");
     throw error;

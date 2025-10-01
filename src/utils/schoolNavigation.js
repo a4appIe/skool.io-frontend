@@ -99,7 +99,7 @@ export const schoolMenuItems = [
   {
     title: "Notices",
     icon: Bell,
-    subItems: [{ title: "List Notices", url: "/school/notices/messages" }],
+    subItems: [{ title: "List Notices", url: "/school/notices" }],
   },
   {
     title: "Settings",

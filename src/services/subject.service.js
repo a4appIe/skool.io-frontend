@@ -1,9 +1,6 @@
-import useSubjectStore from "@/store/useSubjectStore";
 import axios from "axios";
 import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_API_URL;
-const { addSubject, setSubjects, deleteSubject, updateSubject } =
-  useSubjectStore.getState();
 
 export const createSubject = async (subjectData) => {
   // Simulate API call
@@ -18,11 +15,11 @@ export const createSubject = async (subjectData) => {
       }
     );
     if (response.data.success) {
-      addSubject(response.data.data);
       console.log("Subject created successfully:", response.data.data);
       toast.success("Subject created successfully!", {
         description: `Subject ${response.data.data?.subjectName} has been created.`,
       });
+      return (response.data.data);
     } else {
       toast.error("Failed to create subject.", {
         description:
@@ -49,10 +46,10 @@ export const updateSubjectById = async (id, subjectData) => {
     if (response.data.success) {
       const updatedSubject = response.data.data;
       console.log(updatedSubject);
-      updateSubject(id, updatedSubject);
       toast.success("Subject updated successfully!", {
         description: `Subject ${updatedSubject.subjectName} has been updated.`,
       });
+      return (id, updatedSubject);
     } else {
       toast.error("Failed to update subject.", {
         description:
@@ -75,10 +72,10 @@ export const deleteSubjectById = async (subject) => {
       `${API_URL}/subject/delete-subject/${subject._id}`
     );
     if (response.data.success) {
-      deleteSubject(subject._id);
       toast.success("Subject deleted successfully!", {
         description: `Subject with subject name ${subject.subjectName} has been deleted.`,
       });
+      return (true);
     } else {
       toast.error("Failed to delete subject.", {
         description:
@@ -112,7 +109,7 @@ export const getAllSubjects = async () => {
     const response = await axios.get(`${API_URL}/subject/subjects`);
     console.log(response);
     if (response.data.success) {
-      setSubjects(response.data.data);
+      return (response.data.data);
     } else {
       toast.error("Failed to fetch subjects.", {
         description:

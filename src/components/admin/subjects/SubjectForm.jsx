@@ -21,7 +21,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, MenuIcon, User, Plus, Save, Edit } from "lucide-react";
+import { BookOpen, User, Plus, Save, Edit } from "lucide-react";
 import { toast } from "sonner";
 import { createSubject, updateSubjectById } from "@/services/subject.service";
 
@@ -95,7 +95,11 @@ function calcProgress(subject) {
   return Math.round((completed / requiredFields.length) * 100);
 }
 
-export function SubjectForm({ edit = false, subject = null }) {
+export function SubjectForm({
+  edit = false,
+  subject = null,
+  fetchSubjects = null,
+}) {
   // Control sheet open state here or pass from parent
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -140,6 +144,16 @@ export function SubjectForm({ edit = false, subject = null }) {
     (a) => a.id.toString() === formData.attendee
   );
 
+  function handleReset() {
+    setFormData({
+      subjectName: "",
+      subjectCode: "",
+      description: "",
+      attendee: "",
+    });
+    setIsOpen(false);
+  }
+
   // Form submit handler mock
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -152,20 +166,20 @@ export function SubjectForm({ edit = false, subject = null }) {
     setLoading(true);
     try {
       if (edit) {
-        await updateSubjectById(subject._id, formData);
+        let updatedSubject = await updateSubjectById(subject._id, formData);
+        if (updatedSubject) {
+          fetchSubjects();
+        }
       } else {
-        await createSubject(formData);
+        let createdSubject = await createSubject(formData);
+        if (createdSubject) {
+          fetchSubjects();
+        }
       }
-      setIsOpen(false);
-      setFormData({
-        subjectName: "",
-        subjectCode: "",
-        description: "",
-        attendee: "",
-      });
+      // Reset form and close sheet
+      handleReset();
     } catch (error) {
       console.error(error);
-      //   alert("Failed to save subject. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -344,7 +358,6 @@ export function SubjectForm({ edit = false, subject = null }) {
               <Button
                 type="submit"
                 className="bg-red-700"
-                onClick={handleSubmit}
                 disabled={
                   loading ||
                   !formData.subjectName.trim() ||

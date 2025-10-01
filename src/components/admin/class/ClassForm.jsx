@@ -32,7 +32,7 @@ import {
 import { createClass, updateClassById } from "@/services/class.service";
 import { getAllTeachers } from "@/services/teacher.service";
 
-export function ClassForm({ edit = false, cls = null }) {
+export function ClassForm({ edit = false, cls = null, fetchClasses = null }) {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [attendeeList, setAttendeeList] = useState([]);
@@ -96,9 +96,15 @@ export function ClassForm({ edit = false, cls = null }) {
     const id = edit ? editClass._id : null;
     try {
       if (edit) {
-        await updateClassById(id, formData);
+        let updatedClass = await updateClassById(id, formData);
+        if (updatedClass) {
+          fetchClasses();
+        }
       } else {
-        await createClass(formData);
+        let createdClass = await createClass(formData);
+        if (createdClass) {
+          fetchClasses();
+        }
       }
       // Reset form and close sheet
       handleReset();

@@ -1,9 +1,6 @@
-import useClassStore from "@/store/useClassStore";
 import axios from "axios";
 import { toast } from "sonner";
 const API_URL = import.meta.env.VITE_API_URL;
-const { addClass, deleteClass, updateClass } =
-  useClassStore.getState();
 
 export const createClass = async (classData) => {
   // Simulate API call
@@ -14,11 +11,11 @@ export const createClass = async (classData) => {
       classData
     );
     if (response.data.success) {
-      addClass(response.data.data);
       console.log("Class created successfully:", response.data.data);
       toast.success("Class created successfully!", {
         description: `Class ${response.data.data.className} has been created.`,
       });
+      return response.data.data;
     } else {
       toast.error("Failed to create class.", {
         description:
@@ -45,10 +42,10 @@ export const updateClassById = async (id, classData) => {
     if (response.data.success) {
       const updatedClass = response.data.data;
       console.log(updatedClass);
-      updateClass(id, updatedClass);
       toast.success("Class updated successfully!", {
         description: `Class ${updatedClass.className} has been updated.`,
       });
+      return updatedClass;
     } else {
       toast.error("Failed to update class.", {
         description:
@@ -71,10 +68,10 @@ export const deleteClassById = async (cls) => {
       `${API_URL}/class/delete-class/${cls._id}`
     );
     if (response.data.success) {
-      deleteClass(cls._id);
       toast.success("Class deleted successfully!", {
         description: `Class with class name ${cls.className} has been deleted.`,
       });
+      return true;
     } else {
       toast.error("Failed to delete class.", {
         description:
@@ -108,8 +105,8 @@ export const getAllClasses = async () => {
     const response = await axios.get(`${API_URL}/class/classes`);
     console.log(response);
     if (response.data.success) {
-      console.log(response.data.data)
-      return (response.data.data);
+      console.log(response.data.data);
+      return response.data.data;
     } else {
       toast.error("Failed to fetch classes.", {
         description:

@@ -42,7 +42,6 @@ import AttendanceError from "@/components/admin/attendance/AttendanceError";
 import AttendanceStudentsCard from "@/components/admin/attendance/AttendanceStudentsCard";
 
 export default function AdminStudentAttendance() {
-  const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
   const [error, setError] = useState(null);
@@ -55,7 +54,7 @@ export default function AdminStudentAttendance() {
     attendanceLoading: false,
   });
 
-  // **FIXED: Moved attendanceData to separate state**
+  // FIXED: Moved attendanceData to separate state
   const [attendanceData, setAttendanceData] = useState({});
 
   // Fetch Classes and Students Data
@@ -64,9 +63,13 @@ export default function AdminStudentAttendance() {
       try {
         setState((prev) => ({ ...prev, isLoading: true }));
         let classes = await getAllClasses();
+        if (classes) {
+          setClasses(classes);
+        }
         let students = await getAllStudents();
-        setClasses(classes);
-        setStudents(students);
+        if (students) {
+          setStudents(students);
+        }
       } catch (error) {
         setError(error.message || "Something went wrong. Please try again.");
       } finally {

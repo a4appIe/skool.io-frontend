@@ -858,7 +858,7 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-xl py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
@@ -885,7 +885,7 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
       </div>
 
       {/* Progress Steps - Fully Responsive */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-xl mt-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex flex-wrap gap-2 sm:gap-0 sm:flex-nowrap items-center justify-between">
             {steps.map((step, index) => {

@@ -5,37 +5,35 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Trash2, Eye, MoreHorizontal, Book, Users } from "lucide-react";
+import { Book } from "lucide-react";
 import { SubjectForm } from "@/components/admin/subjects/SubjectForm";
 import DeleteModal from "@/components/admin/subjects/DeleteModal";
-import useSubjectStore from "@/store/useSubjectStore";
 import { formatDate } from "@/utils/formatDate";
-
-// Placeholder handlers for your Details and Delete logic
-function handleDelete(subject) {
-  if (
-    window.confirm(
-      `Are you sure you want to delete subject: ${subject.subjectName}?`
-    )
-  ) {
-    alert("Subject deleted!");
-  }
-}
-function handleDetails(subject) {
-  alert(
-    `Details for subject: ${subject.subjectName}\n\n${subject.description}`
-  );
-}
+import { getAllSubjects } from "@/services/subject.service";
+import { useEffect, useState } from "react";
 
 export default function AdminSubjects() {
-  const subjects = useSubjectStore((state) => state.subjects);
+  const [subjects, setSubjects] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  // API CALL
+  const fetchSubjects = async () => {
+    try {
+      setLoading(true);
+      const subjects = await getAllSubjects();
+      setSubjects(subjects);
+    } catch (error) {
+      console.error("Error fetching subjects:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSubjects();
+  }, []);
+
+  if (loading) return <h1>LOADING...</h1>;
 
   return (
     <div className="bg-gray-50 px-4 py-7 md:px-8">
@@ -43,7 +41,7 @@ export default function AdminSubjects() {
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
           All Subjects
         </h1>
-        <SubjectForm />
+        <SubjectForm edit={false} fetchSubjects={fetchSubjects} />
       </div>
 
       {subjects.length === 0 && (
@@ -56,38 +54,13 @@ export default function AdminSubjects() {
         {subjects.map((subject) => (
           <Card
             key={subject._id}
-            className="border-gray-200 group hover:shadow-lg transition-all"
+            className="border-gray-200 group hover:shadow-lg transition-all flex flex-col justify-between"
           >
             <CardHeader className="flex items-center justify-between pb-2">
               <CardTitle className="text-lg font-semibold text-red-700 flex items-center gap-2">
                 <Book className="h-5 w-5" />
                 {subject.subjectName}
               </CardTitle>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="hover:bg-gray-100 text-xl text-gray-500 focus:outline-none group"
-                  >
-                    <MoreHorizontal className="w-5 h-5" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="end"
-                  sideOffset={2}
-                  className="w-36"
-                >
-                  <DropdownMenuItem onClick={() => handleDetails(subject)}>
-                    <Eye className="h-4 w-4 mr-2" />
-                    Details
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleDelete(subject)}>
-                    <Trash2 className="h-4 w-4 mr-2 text-red-700" />
-                    <span className="text-red-700">Delete</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
             </CardHeader>
 
             <CardContent>
@@ -109,18 +82,13 @@ export default function AdminSubjects() {
             </CardContent>
 
             <CardFooter className="pt-4 flex gap-2 justify-between">
-              <Button
-                size="sm"
-                variant="outline"
-                className="border-gray-300 text-gray-700 hover:border-red-700 hover:text-red-700"
-                onClick={() => handleDetails(subject)}
-              >
-                <Eye className="h-4 w-4 mr-1" />
-                Details
-              </Button>
               <div className="flex gap-2">
-                <SubjectForm edit={true} subject={subject} />
-                <DeleteModal subject={subject} />
+                <SubjectForm
+                  edit={true}
+                  subject={subject}
+                  fetchSubjects={fetchSubjects}
+                />
+                <DeleteModal subject={subject} fetchSubjects={fetchSubjects} />
               </div>
             </CardFooter>
           </Card>

@@ -14,11 +14,14 @@ import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { deleteClassById } from "@/services/class.service";
 
-async function handleDelete(cls) {
-  await deleteClassById(cls);
+async function handleDelete(cls, fetchClasses) {
+  let isDel = await deleteClassById(cls);
+  if (isDel) {
+    fetchClasses();
+  }
 }
 
-const DeleteModal = ({ cls }) => {
+const DeleteModal = ({ cls, fetchClasses }) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -43,7 +46,7 @@ const DeleteModal = ({ cls }) => {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             className={"bg-red-600 text-white hover:bg-red-700"}
-            onClick={() => handleDelete(cls)}
+            onClick={() => handleDelete(cls, fetchClasses)}
           >
             Delete
           </AlertDialogAction>

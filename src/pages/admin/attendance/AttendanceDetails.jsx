@@ -245,25 +245,25 @@ export default function AttendanceDetails() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
-      <div className="bg-white shadow-sm border-b">
+      <div className="bg-white shadow-md max-w-7xl m-auto rounded-xl py-2">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Button variant="ghost" onClick={handleBack} className="p-2">
+              <Button
+                variant="ghost"
+                onClick={handleBack}
+                className="p-2 bg-red-600 hover:bg-red-700 text-white hover:text-white rounded-md"
+              >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">
                   Attendance Details
                 </h1>
-                <p className="text-gray-600">
-                  {state.student.name} -{" "}
-                  {state.student?.studentClass?.className}
-                </p>
               </div>
             </div>
-            <Button onClick={handleExport} variant="outline">
-              <Download className="h-4 w-4 mr-2" />
+            <Button onClick={handleExport} variant="outline" className={"bg-red-600 hover:bg-red-700 text-white hover:text-white"}>
+              <Download className="h-4 w-4" />
               Export
             </Button>
           </div>
@@ -287,7 +287,7 @@ export default function AttendanceDetails() {
                         {state.student.name}
                       </CardTitle>
                       <p className="text-gray-600">
-                        @{state.student?.username}
+                        #{state.student?.username}
                       </p>
                     </div>
                   </div>

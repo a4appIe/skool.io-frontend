@@ -1,25 +1,54 @@
 /* eslint-disable no-unused-vars */
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Users, UserPlus, GraduationCap, BookOpen, TrendingUp, TrendingDown,
-  Plus, Eye, FileText, Settings, Bell, Calendar, DollarSign,
-  MoreHorizontal, Activity, Clock, AlertCircle, CheckCircle
+  Users,
+  UserPlus,
+  GraduationCap,
+  BookOpen,
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  Eye,
+  FileText,
+  Settings,
+  Calendar,
+  DollarSign,
+  MoreHorizontal,
+  Activity,
+  Clock,
+  AlertCircle,
+  CheckCircle,
+  SearchSlashIcon,
+  IndianRupee,
 } from "lucide-react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { getSchool } from "@/services/school.service";
+import { useEffect, useState } from "react";
 
 export function AdminDashboard() {
-  const [selectedPeriod, setSelectedPeriod] = useState("thisMonth");
-
+  const [school, setSchool] = useState(null);
   // Quick Actions Data
   const quickActions = [
     {
@@ -27,83 +56,43 @@ export function AdminDashboard() {
       description: "Register new student",
       icon: UserPlus,
       color: "bg-red-700 hover:bg-red-800",
-      action: "add-student"
+      action: "add-student",
     },
     {
       title: "Create Class",
       description: "Setup new class",
       icon: Plus,
       color: "bg-gray-700 hover:bg-gray-800",
-      action: "create-class"
+      action: "create-class",
     },
     {
       title: "Schedule Event",
       description: "Add to calendar",
       icon: Calendar,
       color: "bg-red-600 hover:bg-red-700",
-      action: "schedule-event"
+      action: "schedule-event",
     },
     {
       title: "Generate Report",
       description: "Create reports",
       icon: FileText,
       color: "bg-gray-600 hover:bg-gray-700",
-      action: "generate-report"
+      action: "generate-report",
     },
     {
       title: "Manage Fees",
       description: "Payment handling",
-      icon: DollarSign,
+      icon: IndianRupee,
       color: "bg-red-700 hover:bg-red-800",
-      action: "manage-fees"
+      action: "manage-fees",
     },
     {
-      title: "View Analytics",
-      description: "Performance data",
-      icon: Activity,
+      title: "Session",
+      description: "Create/Update session",
+      icon: SearchSlashIcon,
       color: "bg-gray-700 hover:bg-gray-800",
-      action: "view-analytics"
-    }
-  ];
-
-  // Stats Data
-  const statsData = [
-    {
-      title: "Total Students",
-      value: "1,234",
-      change: "+12%",
-      changeType: "increase",
-      icon: Users,
-      description: "Active students",
-      progress: 85
+      action: "view-analytics",
     },
-    {
-      title: "Total Teachers",
-      value: "87",
-      change: "+5%",
-      changeType: "increase",
-      icon: GraduationCap,
-      description: "Faculty members",
-      progress: 92
-    },
-    {
-      title: "Active Classes",
-      value: "42",
-      change: "+8%",
-      changeType: "increase",
-      icon: BookOpen,
-      description: "Running classes",
-      progress: 78
-    },
-    {
-      title: "Monthly Revenue",
-      value: "$47,290",
-      change: "-3%",
-      changeType: "decrease",
-      icon: DollarSign,
-      description: "This month",
-      progress: 65
-    }
   ];
 
   // Chart Data (Simple visualization)
@@ -113,7 +102,7 @@ export function AdminDashboard() {
     { month: "Mar", students: 1100, revenue: 48000 },
     { month: "Apr", students: 1150, revenue: 47500 },
     { month: "May", students: 1200, revenue: 49000 },
-    { month: "Jun", students: 1234, revenue: 47290 }
+    { month: "Jun", students: 1234, revenue: 47290 },
   ];
 
   // Recent Activities
@@ -124,7 +113,7 @@ export function AdminDashboard() {
       description: "John Doe registered for Grade 10",
       time: "2 hours ago",
       icon: UserPlus,
-      type: "success"
+      type: "success",
     },
     {
       id: 2,
@@ -132,7 +121,7 @@ export function AdminDashboard() {
       description: "Payment of $500 from Alice Smith",
       time: "4 hours ago",
       icon: DollarSign,
-      type: "success"
+      type: "success",
     },
     {
       id: 3,
@@ -140,7 +129,7 @@ export function AdminDashboard() {
       description: "Ms. Johnson requested leave",
       time: "6 hours ago",
       icon: Clock,
-      type: "warning"
+      type: "warning",
     },
     {
       id: 4,
@@ -148,8 +137,8 @@ export function AdminDashboard() {
       description: "Scheduled maintenance completed",
       time: "1 day ago",
       icon: Settings,
-      type: "info"
-    }
+      type: "info",
+    },
   ];
 
   // Upcoming Events
@@ -159,22 +148,22 @@ export function AdminDashboard() {
       title: "Parent-Teacher Meeting",
       date: "July 25, 2025",
       time: "10:00 AM",
-      type: "meeting"
+      type: "meeting",
     },
     {
       id: 2,
       title: "Science Fair",
       date: "July 28, 2025",
       time: "2:00 PM",
-      type: "event"
+      type: "event",
     },
     {
       id: 3,
       title: "Monthly Assessment",
       date: "August 1, 2025",
       time: "9:00 AM",
-      type: "exam"
-    }
+      type: "exam",
+    },
   ];
 
   const handleQuickAction = (action) => {
@@ -184,21 +173,151 @@ export function AdminDashboard() {
 
   const getActivityIcon = (type) => {
     switch (type) {
-      case 'success': return CheckCircle;
-      case 'warning': return AlertCircle;
-      case 'info': return Activity;
-      default: return Activity;
+      case "success":
+        return CheckCircle;
+      case "warning":
+        return AlertCircle;
+      case "info":
+        return Activity;
+      default:
+        return Activity;
     }
   };
 
   const getActivityColor = (type) => {
     switch (type) {
-      case 'success': return 'text-green-600';
-      case 'warning': return 'text-yellow-600';
-      case 'info': return 'text-blue-600';
-      default: return 'text-gray-600';
+      case "success":
+        return "text-green-600";
+      case "warning":
+        return "text-yellow-600";
+      case "info":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
     }
   };
+  const totalUsers = school?.stats?.totalUsers;
+  const userData = [
+    {
+      name: "Students",
+      value: school?.stats?.totalStudents,
+      color: "#2563eb",
+      icon: BookOpen,
+      percentage:
+        ((school?.stats?.totalStudents / (school?.stats?.totalUsers - 1)) * 100).toFixed(2),
+    },
+    {
+      name: "Teachers",
+      value: school?.stats?.totalTeachers,
+      color: "#dc2626",
+      icon: GraduationCap,
+      percentage:
+        ((school?.stats?.totalTeachers / (school?.stats?.totalUsers - 1)) * 100).toFixed(2),
+    },
+  ];
+
+  async function getSchoolData() {
+    let school = await getSchool();
+    setSchool(school);
+    console.log(school);
+  }
+
+  const renderCustomLabel = ({
+    cx,
+    cy,
+    midAngle,
+    innerRadius,
+    outerRadius,
+    percent,
+  }) => {
+    const RADIAN = Math.PI / 180;
+    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
+    const x = cx + radius * Math.cos(-midAngle * RADIAN) + 5;
+    const y = cy + radius * Math.sin(-midAngle * RADIAN) - 5;
+
+    return (
+      <text
+        x={x}
+        y={y}
+        fill="white"
+        textAnchor={"center"}
+        dominantBaseline="central"
+        fontSize="10"
+        fontWeight="bold"
+      >
+        {`${(percent * 100).toFixed(1)}%`}
+      </text>
+    );
+  };
+
+  // Custom tooltip
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md">
+          <div className="flex items-center gap-2 mb-1">
+            <div
+              className="w-3 h-3 rounded-full"
+              style={{ backgroundColor: data.color }}
+            ></div>
+            <p className="font-semibold text-gray-900">{data.name}</p>
+          </div>
+          <p className="text-sm text-gray-600">
+            Count: {data.value.toLocaleString()}
+          </p>
+          <p className="text-sm text-gray-600">
+            Percentage: {data.percentage}%
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  useEffect(() => {
+    getSchoolData();
+  }, []);
+
+  // Stats Data
+  const statsData = [
+    {
+      title: "Total Students",
+      value: school?.stats?.totalStudents,
+      change: "+12%",
+      changeType: "increase",
+      icon: Users,
+      description: "Active students",
+      progress: 85,
+    },
+    {
+      title: "Total Teachers",
+      value: school?.stats?.totalTeachers,
+      change: "+5%",
+      changeType: "increase",
+      icon: GraduationCap,
+      description: "Faculty members",
+      progress: 92,
+    },
+    {
+      title: "Active Classes",
+      value: school?.stats?.totalClasses,
+      change: "+8%",
+      changeType: "increase",
+      icon: BookOpen,
+      description: "Running classes",
+      progress: 78,
+    },
+    {
+      title: "Monthly Revenue",
+      value: "$47,290",
+      change: "-3%",
+      changeType: "decrease",
+      icon: DollarSign,
+      description: "This month",
+      progress: 65,
+    },
+  ];
 
   return (
     <div className="flex-1 min-h-screen bg-gray-50 overflow-x-hidden">
@@ -208,11 +327,18 @@ export function AdminDashboard() {
           <div className="mb-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Dashboard</h1>
-                <p className="text-gray-600 mt-1">Welcome back! Here's what's happening at your school.</p>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+                  Dashboard
+                </h1>
+                <p className="text-gray-600 mt-1">
+                  Welcome back! Here's what's happening at your school.
+                </p>
               </div>
               <div className="flex items-center gap-3">
-                <Badge variant="outline" className="border-red-700 text-red-700">
+                <Badge
+                  variant="outline"
+                  className="border-red-700 text-red-700"
+                >
                   Academic Year 2024-25
                 </Badge>
               </div>
@@ -221,22 +347,30 @@ export function AdminDashboard() {
 
           {/* Quick Actions */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
+            <h2 className="text-xl font-bold text-gray-900 mb-4">
+              Quick Actions
+            </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
               {quickActions.map((action, index) => {
                 const Icon = action.icon;
                 return (
-                  <Card 
-                    key={index} 
+                  <Card
+                    key={index}
                     className="cursor-pointer hover:shadow-lg transition-all duration-200 border-gray-200 hover:border-red-700 group"
                     onClick={() => handleQuickAction(action.action)}
                   >
                     <CardContent className="p-4 text-center">
-                      <div className={`inline-flex p-3 rounded-lg text-white mb-3 ${action.color} group-hover:scale-110 transition-transform duration-200`}>
+                      <div
+                        className={`inline-flex p-3 rounded-lg text-white mb-3 ${action.color} group-hover:scale-110 transition-transform duration-200`}
+                      >
                         <Icon className="h-6 w-6" />
                       </div>
-                      <h3 className="font-medium text-sm text-gray-900 mb-1">{action.title}</h3>
-                      <p className="text-xs text-gray-600">{action.description}</p>
+                      <h3 className="font-medium text-sm text-gray-900 mb-1">
+                        {action.title}
+                      </h3>
+                      <p className="text-xs text-gray-600">
+                        {action.description}
+                      </p>
                     </CardContent>
                   </Card>
                 );
@@ -251,10 +385,14 @@ export function AdminDashboard() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {statsData.map((stat, index) => {
                   const Icon = stat.icon;
-                  const TrendIcon = stat.changeType === "increase" ? TrendingUp : TrendingDown;
-                  
+                  const TrendIcon =
+                    stat.changeType === "increase" ? TrendingUp : TrendingDown;
+
                   return (
-                    <Card key={index} className="hover:shadow-lg transition-shadow duration-200 border-gray-200">
+                    <Card
+                      key={index}
+                      className="hover:shadow-lg transition-shadow duration-200 border-gray-200"
+                    >
                       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-gray-600">
                           {stat.title}
@@ -267,10 +405,20 @@ export function AdminDashboard() {
                         </div>
                         <div className="flex items-center justify-between text-xs text-gray-600 mb-3">
                           <div className="flex items-center">
-                            <TrendIcon className={`h-3 w-3 mr-1 ${
-                              stat.changeType === "increase" ? "text-green-500" : "text-red-500"
-                            }`} />
-                            <span className={stat.changeType === "increase" ? "text-green-500" : "text-red-500"}>
+                            <TrendIcon
+                              className={`h-3 w-3 mr-1 ${
+                                stat.changeType === "increase"
+                                  ? "text-green-500"
+                                  : "text-red-500"
+                              }`}
+                            />
+                            <span
+                              className={
+                                stat.changeType === "increase"
+                                  ? "text-green-500"
+                                  : "text-red-500"
+                              }
+                            >
                               {stat.change}
                             </span>
                             <span className="ml-1">from last month</span>
@@ -293,39 +441,84 @@ export function AdminDashboard() {
             {/* Chart - Right Side */}
             <div className="lg:col-span-2">
               <Card className="h-full border-gray-200">
+                {/* Header */}
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <span>Student Growth</span>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem>Export Data</DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                  <CardTitle className="text-xl flex items-center gap-4">
+                    <Users className="h-4 w-4 text-gray-600" /> <span> Total Users - <span className="text-red-600 font-bold">{totalUsers}</span></span>
                   </CardTitle>
-                  <CardDescription>Monthly student enrollment trends</CardDescription>
+                  <CardDescription>
+                    Total system users breakdown
+                  </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {chartData.map((data, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-gray-700">{data.month}</span>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-20 bg-gray-200 rounded-full h-2">
-                            <div 
-                              className="bg-red-700 h-2 rounded-full transition-all duration-300"
-                              style={{ width: `${(data.students / 1234) * 100}%` }}
-                            ></div>
+                <CardContent className="space-y-6">
+                  {/* Recharts Pie Chart */}
+                  <div className="w-full h-48">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={userData}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={renderCustomLabel}
+                          outerRadius={90}
+                          innerRadius={40}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {userData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip content={<CustomTooltip />} />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Statistics Cards */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {userData.map((item, index) => {
+                      const Icon = item.icon;
+                      return (
+                        <div
+                          key={index}
+                          className="flex items-center justify-between px-3 py-2 rounded-lg border-2"
+                          style={{
+                            backgroundColor: `${item.color}10`,
+                            borderColor: `${item.color}30`,
+                          }}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div
+                              className="p-2 rounded-full"
+                              style={{ backgroundColor: `${item.color}20` }}
+                            >
+                              <Icon
+                                className="h-5 w-5"
+                                style={{ color: item.color }}
+                              />
+                            </div>
+                            <div>
+                              <div className="font-semibold text-gray-900">
+                                {item.name}
+                              </div>
+                              <div className="text-sm text-gray-600">
+                                {item.percentage}% of total
+                              </div>
+                            </div>
                           </div>
-                          <span className="text-sm text-gray-600 w-12 text-right">{data.students}</span>
+                          <div className="text-right">
+                            <div
+                              className="text-2xl font-bold"
+                              style={{ color: item.color }}
+                            >
+                              {item.value}
+                            </div>
+                            <div className="text-xs text-gray-500">users</div>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </CardContent>
               </Card>
@@ -339,7 +532,11 @@ export function AdminDashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>Recent Activities</span>
-                  <Button variant="ghost" size="sm" className="text-red-700 hover:text-red-800">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-700 hover:text-red-800"
+                  >
                     <Eye className="h-4 w-4 mr-2" />
                     View All
                   </Button>
@@ -351,16 +548,33 @@ export function AdminDashboard() {
                     const Icon = activity.icon;
                     const ActivityIcon = getActivityIcon(activity.type);
                     return (
-                      <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200">
-                        <div className={`p-2 rounded-full bg-gray-100 ${getActivityColor(activity.type)}`}>
+                      <div
+                        key={activity.id}
+                        className="flex items-start space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                      >
+                        <div
+                          className={`p-2 rounded-full bg-gray-100 ${getActivityColor(
+                            activity.type
+                          )}`}
+                        >
                           <Icon className="h-4 w-4" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm text-gray-900">{activity.title}</p>
-                          <p className="text-xs text-gray-600 mt-1">{activity.description}</p>
-                          <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                          <p className="font-medium text-sm text-gray-900">
+                            {activity.title}
+                          </p>
+                          <p className="text-xs text-gray-600 mt-1">
+                            {activity.description}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {activity.time}
+                          </p>
                         </div>
-                        <ActivityIcon className={`h-4 w-4 ${getActivityColor(activity.type)}`} />
+                        <ActivityIcon
+                          className={`h-4 w-4 ${getActivityColor(
+                            activity.type
+                          )}`}
+                        />
                       </div>
                     );
                   })}
@@ -372,16 +586,25 @@ export function AdminDashboard() {
             <Card className="border-gray-200">
               <CardHeader>
                 <CardTitle>Upcoming Events</CardTitle>
-                <CardDescription>Your schedule for the next week</CardDescription>
+                <CardDescription>
+                  Your schedule for the next week
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
                   {upcomingEvents.map((event) => (
-                    <div key={event.id} className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:border-red-700 transition-colors duration-200">
+                    <div
+                      key={event.id}
+                      className="flex items-center space-x-3 p-3 rounded-lg border border-gray-200 hover:border-red-700 transition-colors duration-200"
+                    >
                       <div className="w-2 h-2 rounded-full bg-red-700"></div>
                       <div className="flex-1">
-                        <p className="font-medium text-sm text-gray-900">{event.title}</p>
-                        <p className="text-xs text-gray-600">{event.date} at {event.time}</p>
+                        <p className="font-medium text-sm text-gray-900">
+                          {event.title}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {event.date} at {event.time}
+                        </p>
                       </div>
                       <Badge variant="outline" className="text-xs">
                         {event.type}
@@ -411,7 +634,7 @@ export function AdminDashboard() {
                     </div>
                     <Progress value={94} className="h-2" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Fee Collection</span>
@@ -419,15 +642,17 @@ export function AdminDashboard() {
                     </div>
                     <Progress value={87} className="h-2" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-gray-600">Academic Performance</span>
+                      <span className="text-gray-600">
+                        Academic Performance
+                      </span>
                       <span className="font-medium text-gray-900">91.8%</span>
                     </div>
                     <Progress value={91} className="h-2" />
                   </div>
-                  
+
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
                       <span className="text-gray-600">Parent Engagement</span>
@@ -436,11 +661,13 @@ export function AdminDashboard() {
                     <Progress value={78} className="h-2" />
                   </div>
                 </div>
-                
+
                 <div className="mt-4 p-3 bg-red-50 rounded-lg border border-red-200">
                   <div className="flex items-center">
                     <TrendingUp className="h-4 w-4 text-red-700 mr-2" />
-                    <span className="text-sm font-medium text-red-700">Overall improvement of 12% this quarter</span>
+                    <span className="text-sm font-medium text-red-700">
+                      Overall improvement of 12% this quarter
+                    </span>
                   </div>
                 </div>
               </CardContent>

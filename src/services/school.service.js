@@ -66,3 +66,26 @@ export const loginSchool = async (schoolData) => {
     throw error;
   }
 };
+
+export const getSchool = async () => {
+  try {
+    const response = await axios.get(
+      `${API_URL}/school`,
+    );
+    console.log(response);
+    if (response.data.success) {
+      return response.data?.data;
+    }
+  } catch (error) {
+    toast.error("Error while fetching school data", {
+      description: error.response?.data?.message || error.message,
+    });
+    console.error(
+      "Error fetching in school:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
+};
+
+

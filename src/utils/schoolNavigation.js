@@ -89,12 +89,12 @@ export const schoolMenuItems = [
   {
     title: "Fees Management",
     icon: CardSim,
-    subItems: [{ title: "Current Schedule", url: "/school/schedule/messages" }],
+    subItems: [{ title: "Manage Fees", url: "/school/fees" }],
   },
   {
     title: "Payroll",
     icon: CopySlash,
-    subItems: [{ title: "Current Schedule", url: "/school/schedule/messages" }],
+    subItems: [{ title: "Manage Payroll", url: "/school/payroll" }],
   },
   {
     title: "Notices",

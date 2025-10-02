@@ -36,6 +36,11 @@ import { AdminTeacherProfile } from "./pages/admin/AdminTeacherProfile";
 import AttendanceDetails from "./pages/admin/attendance/AttendanceDetails";
 import AdminStudentAttendance from "./pages/admin/attendance/AdminStudentAttendance";
 import AdminTeacherAttendance from "./pages/admin/attendance/AdminTeacherAttendance";
+import AdminFees from "./pages/admin/AdminFees";
+import AdminPayrollDetails from "./pages/admin/admin-paytoll/AdminPayrollDetails";
+import AdminPayrollList from "./pages/admin/admin-paytoll/AdminPayrollList";
+import AdminPayroll from "./pages/admin/AdminPayroll";
+import AdminSalary from "./pages/admin/admin-paytoll/AdminSalary";
 
 const App = () => (
   <>
@@ -87,6 +92,15 @@ const App = () => (
             path="edit-teacher/:teacherId"
             element={<AdminHRRecruit edit={true} />}
           />
+        </Route>
+        <Route path="fees" element={<AdminFees />}>
+          {/* <Route index element={<AdminHRDashboard />} />
+          <Route path="recruit" element={<AdminHRRecruit />} /> */}
+        </Route>
+        <Route path="payroll" element={<AdminPayroll />}>
+          <Route index element={<AdminPayrollList />} />
+          <Route path="details/:teacherId" element={<AdminPayrollDetails />} />
+          <Route path="salaries" element={<AdminSalary />} />
         </Route>
       </Route>
 

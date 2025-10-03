@@ -36,25 +36,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
-
-// Mock data for salaries
-// const mockSalaries = [
-//   {
-//     id: "1",
-//     name: "Basic",
-//     amount: 15000,
-//   },
-//   {
-//     id: "2",
-//     name: "Intermediate",
-//     amount: 20000,
-//   },
-//   {
-//     id: "3",
-//     name: "Advanced",
-//     amount: 30000,
-//   },
-// ];
+import {
+  createSalary,
+  deleteSalaryById,
+  getAllSalaries,
+  updateSalaryById,
+} from "@/services/salary.service";
 
 const AdminSalary = () => {
   const navigate = useNavigate();
@@ -92,6 +79,15 @@ const AdminSalary = () => {
     setEditingId(null);
   };
 
+  async function fetchSalaries() {
+    let salaries = await getAllSalaries();
+    setSalaries(salaries);
+  }
+
+  useEffect(() => {
+    fetchSalaries();
+  }, []);
+
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -106,27 +102,17 @@ const AdminSalary = () => {
     try {
       if (isEditing) {
         // Update existing salary
-        setSalaries((prev) =>
-          prev.map((salary) =>
-            salary.id === editingId
-              ? {
-                  ...salary,
-                  ...formData,
-                }
-              : salary
-          )
-        );
-        toast.success("Salary updated successfully!");
+        let updatedSalary = await updateSalaryById(editingId, formData);
+        if (updatedSalary) {
+          fetchSalaries();
+        }
       } else {
         // Add new salary
-        const newSalary = {
-          id: Date.now().toString(),
-          ...formData,
-        };
-        setSalaries((prev) => [...prev, newSalary]);
-        toast.success("Salary added successfully!");
+        let newSalary = await createSalary(formData);
+        if (newSalary) {
+          fetchSalaries();
+        }
       }
-
       resetForm();
     } catch (error) {
       toast.error("Operation failed. Please try again.");
@@ -142,13 +128,16 @@ const AdminSalary = () => {
       amount: salary.amount,
     });
     setIsEditing(true);
-    setEditingId(salary.id);
+    setEditingId(salary._id);
   };
 
   // Handle delete
-  const handleDelete = (id) => {
-    setSalaries((prev) => prev.filter((salary) => salary.id !== id));
-    toast.success("Salary deleted successfully!");
+  const handleDelete = async (salary) => {
+    let isDel = await deleteSalaryById(salary);
+    console.log(isDel);
+    if (isDel) {
+      fetchSalaries();
+    }
   };
 
   const formatCurrency = (amount) => {
@@ -325,7 +314,7 @@ const AdminSalary = () => {
                       {salaries.length > 0 ? (
                         salaries.map((salary) => (
                           <TableRow
-                            key={salary.id}
+                            key={salary._id}
                             className="hover:bg-gray-50 border-b border-gray-100"
                           >
                             <TableCell>
@@ -381,7 +370,7 @@ const AdminSalary = () => {
                                         Cancel
                                       </AlertDialogCancel>
                                       <AlertDialogAction
-                                        onClick={() => handleDelete(salary.id)}
+                                        onClick={() => handleDelete(salary)}
                                         className="bg-red-600 hover:bg-red-700"
                                       >
                                         Delete

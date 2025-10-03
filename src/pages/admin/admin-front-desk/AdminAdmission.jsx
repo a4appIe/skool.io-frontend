@@ -7,7 +7,6 @@ const AdminAdmission = ({edit = false}) => {
   const { studentId } = useParams();
   if (!studentId && edit) {
     console.error("No studentId provided for editing.");
-    // return null;
   }
   return (
     <>

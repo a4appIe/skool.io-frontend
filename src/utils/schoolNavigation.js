@@ -21,26 +21,24 @@ export const schoolMenuItems = [
     icon: Home,
     subItems: [],
   },
-  {
-    title: "Front Desk",
-    icon: LampDesk,
-    subItems: [
-      { title: "Dashboard", url: "/school/front-desk" },
-      { title: "Admission", url: "/school/front-desk/admission" },
-      // { title: "Teacher", url: "/school/front-desk/teacher" },
-      // { title: "Operator", url: "/school/front-desk/operator" },
-    ],
-  },
-  {
-    title: "Human Resource",
-    icon: PersonStanding,
-    subItems: [
-      { title: "Dashboard", url: "/school/hr" },
-      { title: "Recruit", url: "/school/hr/recruit" },
-      // { title: "Teacher", url: "/school/hr/teacher" },
-      // { title: "Operator", url: "/school/hr/operator" },
-    ],
-  },
+
+  // {
+  //   title: "Front Desk",
+  //   icon: LampDesk,
+  //   subItems: [
+  //     { title: "Dashboard", url: "/school/front-desk" },
+  //     { title: "Admission", url: "/school/front-desk/admission" },
+  //   ],
+  // },
+  // {
+  //   title: "Human Resource",
+  //   icon: PersonStanding,
+  //   subItems: [
+  //     { title: "Dashboard", url: "/school/hr" },
+  //     { title: "Recruit", url: "/school/hr/recruit" },
+  //   ],
+  // },
+  
   {
     title: "User Management",
     icon: User,
@@ -94,7 +92,10 @@ export const schoolMenuItems = [
   {
     title: "Payroll",
     icon: CopySlash,
-    subItems: [{ title: "Manage Payroll", url: "/school/payroll" }],
+    subItems: [
+      { title: "Manage Payroll", url: "/school/payroll" },
+      { title: "Manage Salaries", url: "/school/payroll/salaries" },
+    ],
   },
   {
     title: "Notices",

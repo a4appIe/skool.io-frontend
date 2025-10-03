@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import {
   Card,
   CardContent,
@@ -22,7 +21,6 @@ import {
   Settings,
   Calendar,
   DollarSign,
-  MoreHorizontal,
   Activity,
   Clock,
   AlertCircle,
@@ -30,25 +28,29 @@ import {
   SearchSlashIcon,
   IndianRupee,
 } from "lucide-react";
-import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
-  Legend,
-  Tooltip,
-} from "recharts";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { getSchool } from "@/services/school.service";
 import { useEffect, useState } from "react";
+import AdminEditSession from "@/components/admin/dashboard/AdminEditSession";
+import AdminCreateSession from "@/components/admin/dashboard/AdminCreateSession";
+import AdminViewSession from "@/components/admin/dashboard/AdminViewSession";
+import { getAllSessions, updateSession } from "@/services/session.service";
 
 export function AdminDashboard() {
   const [school, setSchool] = useState(null);
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  async function fetchSessions() {
+    setLoading(true);
+    let fetchedSessions = await getAllSessions();
+    console.log("Sessions", fetchedSessions);
+    if (fetchedSessions) {
+      setSessions(fetchedSessions);
+    }
+    setLoading(false);
+  }
+
   // Quick Actions Data
   const quickActions = [
     {
@@ -93,16 +95,6 @@ export function AdminDashboard() {
       color: "bg-gray-700 hover:bg-gray-800",
       action: "view-analytics",
     },
-  ];
-
-  // Chart Data (Simple visualization)
-  const chartData = [
-    { month: "Jan", students: 980, revenue: 45000 },
-    { month: "Feb", students: 1020, revenue: 46000 },
-    { month: "Mar", students: 1100, revenue: 48000 },
-    { month: "Apr", students: 1150, revenue: 47500 },
-    { month: "May", students: 1200, revenue: 49000 },
-    { month: "Jun", students: 1234, revenue: 47290 },
   ];
 
   // Recent Activities
@@ -203,16 +195,20 @@ export function AdminDashboard() {
       value: school?.stats?.totalStudents,
       color: "#2563eb",
       icon: BookOpen,
-      percentage:
-        ((school?.stats?.totalStudents / (school?.stats?.totalUsers - 1)) * 100).toFixed(2),
+      percentage: (
+        (school?.stats?.totalStudents / (school?.stats?.totalUsers - 1)) *
+        100
+      ).toFixed(2),
     },
     {
       name: "Teachers",
       value: school?.stats?.totalTeachers,
       color: "#dc2626",
       icon: GraduationCap,
-      percentage:
-        ((school?.stats?.totalTeachers / (school?.stats?.totalUsers - 1)) * 100).toFixed(2),
+      percentage: (
+        (school?.stats?.totalTeachers / (school?.stats?.totalUsers - 1)) *
+        100
+      ).toFixed(2),
     },
   ];
 
@@ -222,58 +218,40 @@ export function AdminDashboard() {
     console.log(school);
   }
 
-  const renderCustomLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-  }) => {
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN) + 5;
-    const y = cy + radius * Math.sin(-midAngle * RADIAN) - 5;
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={"center"}
-        dominantBaseline="central"
-        fontSize="10"
-        fontWeight="bold"
-      >
-        {`${(percent * 100).toFixed(1)}%`}
-      </text>
-    );
-  };
+  async function handleEditSession(session) {
+    try {
+      // Trigger parent handler for session update
+      let updatedSchool = await updateSession({ session });
+      setSchool(updatedSchool);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   // Custom tooltip
-  const CustomTooltip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const data = payload[0].payload;
-      return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md">
-          <div className="flex items-center gap-2 mb-1">
-            <div
-              className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: data.color }}
-            ></div>
-            <p className="font-semibold text-gray-900">{data.name}</p>
-          </div>
-          <p className="text-sm text-gray-600">
-            Count: {data.value.toLocaleString()}
-          </p>
-          <p className="text-sm text-gray-600">
-            Percentage: {data.percentage}%
-          </p>
-        </div>
-      );
-    }
-    return null;
-  };
+  // const CustomTooltip = ({ active, payload }) => {
+  //   if (active && payload && payload.length) {
+  //     const data = payload[0].payload;
+  //     return (
+  //       <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-md">
+  //         <div className="flex items-center gap-2 mb-1">
+  //           <div
+  //             className="w-3 h-3 rounded-full"
+  //             style={{ backgroundColor: data.color }}
+  //           ></div>
+  //           <p className="font-semibold text-gray-900">{data.name}</p>
+  //         </div>
+  //         <p className="text-sm text-gray-600">
+  //           Count: {data.value.toLocaleString()}
+  //         </p>
+  //         <p className="text-sm text-gray-600">
+  //           Percentage: {data.percentage}%
+  //         </p>
+  //       </div>
+  //     );
+  //   }
+  //   return null;
+  // };
 
   useEffect(() => {
     getSchoolData();
@@ -337,10 +315,24 @@ export function AdminDashboard() {
               <div className="flex items-center gap-3">
                 <Badge
                   variant="outline"
-                  className="border-red-700 text-red-700"
+                  className="border-red-700 text-red-700 flex-1"
                 >
-                  Academic Year 2024-25
+                  Session: <span className="font-bold">{school?.session}</span>
+                  <AdminEditSession
+                    sessions={sessions}
+                    loading={loading}
+                    session={school?.session}
+                    handleEditSession={handleEditSession}
+                  />
                 </Badge>
+                <div className="flex items-center flex-1 gap-2">
+                  <AdminCreateSession />
+                  <AdminViewSession
+                    fetchSessions={fetchSessions}
+                    sessions={sessions}
+                    loading={loading}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -444,7 +436,14 @@ export function AdminDashboard() {
                 {/* Header */}
                 <CardHeader>
                   <CardTitle className="text-xl flex items-center gap-4">
-                    <Users className="h-4 w-4 text-gray-600" /> <span> Total Users - <span className="text-red-600 font-bold">{totalUsers}</span></span>
+                    <Users className="h-4 w-4 text-gray-600" />{" "}
+                    <span>
+                      {" "}
+                      Total Users -{" "}
+                      <span className="text-red-600 font-bold">
+                        {totalUsers}
+                      </span>
+                    </span>
                   </CardTitle>
                   <CardDescription>
                     Total system users breakdown
@@ -460,7 +459,6 @@ export function AdminDashboard() {
                           cx="50%"
                           cy="50%"
                           labelLine={false}
-                          label={renderCustomLabel}
                           outerRadius={90}
                           innerRadius={40}
                           paddingAngle={5}
@@ -470,7 +468,7 @@ export function AdminDashboard() {
                             <Cell key={`cell-${index}`} fill={entry.color} />
                           ))}
                         </Pie>
-                        <Tooltip content={<CustomTooltip />} />
+                        <Tooltip />
                       </PieChart>
                     </ResponsiveContainer>
                   </div>

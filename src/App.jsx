@@ -37,10 +37,11 @@ import AttendanceDetails from "./pages/admin/attendance/AttendanceDetails";
 import AdminStudentAttendance from "./pages/admin/attendance/AdminStudentAttendance";
 import AdminTeacherAttendance from "./pages/admin/attendance/AdminTeacherAttendance";
 import AdminFees from "./pages/admin/AdminFees";
-import AdminPayrollDetails from "./pages/admin/admin-paytoll/AdminPayrollDetails";
-import AdminPayrollList from "./pages/admin/admin-paytoll/AdminPayrollList";
+import AdminPayrollDetails from "./pages/admin/admin-payroll/AdminPayrollDetails";
+import AdminPayrollList from "./pages/admin/admin-payroll/AdminPayrollList";
 import AdminPayroll from "./pages/admin/AdminPayroll";
-import AdminSalary from "./pages/admin/admin-paytoll/AdminSalary";
+import AdminSalary from "./pages/admin/admin-payroll/AdminSalary";
+import AdminOperators from "./pages/admin/AdminOperators";
 
 const App = () => (
   <>
@@ -76,7 +77,7 @@ const App = () => (
           <Route index element={<AdminTeachers />} />
           <Route path="profile/:teacherId" element={<AdminTeacherProfile />} />
         </Route>
-        <Route path="operators" element={<AdminTeachers />} />
+        <Route path="operators" element={<AdminOperators />} />
         <Route path="front-desk" element={<AdminFrontDesk />}>
           <Route index element={<AdminFrontDeskDashboard />} />
           <Route path="admission" element={<AdminAdmission edit={false} />} />
@@ -94,8 +95,6 @@ const App = () => (
           />
         </Route>
         <Route path="fees" element={<AdminFees />}>
-          {/* <Route index element={<AdminHRDashboard />} />
-          <Route path="recruit" element={<AdminHRRecruit />} /> */}
         </Route>
         <Route path="payroll" element={<AdminPayroll />}>
           <Route index element={<AdminPayrollList />} />

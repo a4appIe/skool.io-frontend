@@ -35,12 +35,12 @@ export const registerStudent = async (studentData) => {
   }
 };
 
-export const loginSchool = async (schoolData) => {
-  const { login } = useStudentStore.getState();
+export const loginStudent = async (studentData) => {
+  // const { login } = useStudentStore.getState();
   try {
     const response = await axios.post(
-      `${API_URL}/school/login-school`,
-      schoolData,
+      `${API_URL}/student/login-student`,
+      studentData,
       {
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export const loginSchool = async (schoolData) => {
     if (response.data.success) {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(response.data.data));
-      login(response.data.data);
+      // login(response.data.data);
       toast.success("School logged in successfully!", {
         description: response.data.message,
       });

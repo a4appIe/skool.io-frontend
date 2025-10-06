@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Sheet,
   SheetClose,
@@ -9,46 +10,101 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { loginSchool } from "@/services/school.service";
-import { ChevronRight, LogIn, LogOut, Sparkles } from "lucide-react";
+import { loginStudent } from "@/services/student.service";
+// import { loginTeacher } from "@/services/teacher.service";
+import {
+  ChevronRight,
+  LogIn,
+  LogOut,
+  Sparkles,
+  GraduationCap,
+  Users,
+  Building2,
+} from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 export function AuthForm() {
   const [open, setOpen] = useState(false);
   const [user, setUser] = useState({
     username: "",
     password: "",
+    userType: "school", // Default to school
   });
   const navigate = useNavigate();
 
-  //  UTILITY FUNCTIONS
+  // UTILITY FUNCTIONS
   const handleOpen = () => {
     setOpen(true);
   };
+
   const handleClose = () => {
     handleClear();
     setOpen(false);
   };
+
   const handleChange = (e) => {
     const { id, value } = e.target;
     setUser((prev) => ({ ...prev, [id]: value }));
   };
+
+  const handleUserTypeChange = (value) => {
+    setUser((prev) => ({ ...prev, userType: value }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle login logic here
+
+    // Validate fields
+    if (!user.username.trim() || !user.password.trim()) {
+      toast.error("Please enter username and password");
+      return;
+    }
+
     try {
-      const school = await loginSchool(user);
-      if (school.success) {
-        navigate("/school/");
+      const credentials = {
+        username: user.username,
+        password: user.password,
+      };
+
+      let response;
+      let redirectPath;
+
+      // Call appropriate login API based on user type
+      switch (user.userType) {
+        case "student":
+          response = await loginStudent(credentials);
+          redirectPath = "/student";
+          break;
+        case "teacher":
+          // response = await loginTeacher(credentials);
+          redirectPath = "/teacher";
+          break;
+        case "school":
+        default:
+          response = await loginSchool(credentials);
+          redirectPath = "/school";
+          break;
       }
-      handleClose();
+
+      if (response?.success) {
+        toast.success(`Welcome back, ${user.userType}!`);
+        navigate(redirectPath);
+        handleClose();
+      } else {
+        toast.error(response.message || "Login failed");
+      }
     } catch (error) {
       console.error("Login failed:", error);
+      toast.error("Login failed. Please check your credentials.");
     }
   };
+
   const handleClear = () => {
-    setUser({ username: "", password: "" });
+    setUser({ username: "", password: "", userType: "school" });
   };
+
   return (
     <>
       <Sheet className="" open={open} onOpenChange={setOpen}>
@@ -83,8 +139,110 @@ export function AuthForm() {
               </div>
             </div>
           </div>
+
           <div className="flex flex-col gap-8">
             <div className="grid flex-1 auto-rows-min gap-6 px-4">
+              {/* User Type Selection */}
+              <div className="grid gap-3">
+                <Label>Login As</Label>
+                <RadioGroup
+                  value={user.userType}
+                  onValueChange={handleUserTypeChange}
+                  className="grid grid-cols-3 gap-3"
+                >
+                  {/* Student Option */}
+                  <div>
+                    <RadioGroupItem
+                      value="student"
+                      id="student"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="student"
+                      className="flex flex-col items-center justify-center rounded-lg border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-data-[state=checked]:border-red-700 peer-data-[state=checked]:bg-red-50 cursor-pointer transition-all"
+                    >
+                      <GraduationCap
+                        className={`h-6 w-6 mb-2 ${
+                          user.userType === "student"
+                            ? "text-red-700"
+                            : "text-gray-600"
+                        }`}
+                      />
+                      <span
+                        className={`text-xs font-medium ${
+                          user.userType === "student"
+                            ? "text-red-700"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        Student
+                      </span>
+                    </Label>
+                  </div>
+
+                  {/* Teacher Option */}
+                  <div>
+                    <RadioGroupItem
+                      value="teacher"
+                      id="teacher"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="teacher"
+                      className="flex flex-col items-center justify-center rounded-lg border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-data-[state=checked]:border-red-700 peer-data-[state=checked]:bg-red-50 cursor-pointer transition-all"
+                    >
+                      <Users
+                        className={`h-6 w-6 mb-2 ${
+                          user.userType === "teacher"
+                            ? "text-red-700"
+                            : "text-gray-600"
+                        }`}
+                      />
+                      <span
+                        className={`text-xs font-medium ${
+                          user.userType === "teacher"
+                            ? "text-red-700"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        Teacher
+                      </span>
+                    </Label>
+                  </div>
+
+                  {/* School Option */}
+                  <div>
+                    <RadioGroupItem
+                      value="school"
+                      id="school"
+                      className="peer sr-only"
+                    />
+                    <Label
+                      htmlFor="school"
+                      className="flex flex-col items-center justify-center rounded-lg border-2 border-gray-200 bg-white p-3 hover:bg-gray-50 peer-data-[state=checked]:border-red-700 peer-data-[state=checked]:bg-red-50 cursor-pointer transition-all"
+                    >
+                      <Building2
+                        className={`h-6 w-6 mb-2 ${
+                          user.userType === "school"
+                            ? "text-red-700"
+                            : "text-gray-600"
+                        }`}
+                      />
+                      <span
+                        className={`text-xs font-medium ${
+                          user.userType === "school"
+                            ? "text-red-700"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        School
+                      </span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              {/* Username Field */}
               <div className="grid gap-3">
                 <Label htmlFor="username">Username</Label>
                 <Input
@@ -92,8 +250,11 @@ export function AuthForm() {
                   value={user.username}
                   onChange={handleChange}
                   type={"text"}
+                  placeholder="Enter your username"
                 />
               </div>
+
+              {/* Password Field */}
               <div className="grid gap-3">
                 <Label htmlFor="password">Password</Label>
                 <Input
@@ -101,22 +262,26 @@ export function AuthForm() {
                   value={user.password}
                   onChange={handleChange}
                   type={"password"}
+                  placeholder="Enter your password"
                 />
-                <p className="text-right text-red-500 underline">
+                <p className="text-right text-red-500 underline text-sm cursor-pointer hover:text-red-600">
                   forgot password?
                 </p>
               </div>
             </div>
+
+            {/* Action Buttons */}
             <div className="flex flex-col gap-3 items-center justify-end px-4 py-2">
               <Button
                 type="submit"
                 onClick={handleSubmit}
-                className={"w-full py-6"}
+                className={"w-full py-6 bg-red-700 hover:bg-red-800"}
               >
                 <span>
                   <LogIn />
                 </span>
-                Login
+                Login as{" "}
+                {user.userType.charAt(0).toUpperCase() + user.userType.slice(1)}
               </Button>
               <SheetClose asChild>
                 <Button

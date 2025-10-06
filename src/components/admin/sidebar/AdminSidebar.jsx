@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, LogOut } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
   Sidebar,
@@ -26,6 +26,7 @@ import { schoolMenuItems } from "@/utils/schoolNavigation";
 export function AdminSidebar() {
   const [openItem, setOpenItem] = useState(null);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const toggleItem = (index) => {
     setOpenItem((prev) => (prev === index ? null : index));
@@ -181,6 +182,12 @@ export function AdminSidebar() {
         <Button
           variant="outline"
           className="w-full border-red-700 text-red-700 hover:bg-red-700 hover:text-white transition-all duration-200 font-medium"
+          onClick={() => {
+            // Clear auth token and redirect to login
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            navigate("/");
+          }}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Logout

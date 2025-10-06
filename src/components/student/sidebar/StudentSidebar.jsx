@@ -182,6 +182,11 @@ export function StudentSidebar() {
         <Button
           variant="outline"
           className="w-full border-red-700 text-red-700 hover:bg-red-700 hover:text-white transition-all duration-200 font-medium"
+          onClick={() => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("user");
+            window.location.href = "/";
+          }}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Logout

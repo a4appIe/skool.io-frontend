@@ -42,6 +42,8 @@ import AdminPayrollList from "./pages/admin/admin-payroll/AdminPayrollList";
 import AdminPayroll from "./pages/admin/AdminPayroll";
 import AdminSalary from "./pages/admin/admin-payroll/AdminSalary";
 import AdminOperators from "./pages/admin/AdminOperators";
+import AdminExaminationDetails from "./components/admin/examination/AdminExaminationDetails";
+import AdminFeesList from "./pages/admin/admin-fees/AdminFeesList";
 
 const App = () => (
   <>
@@ -65,7 +67,7 @@ const App = () => (
           <Route path=":type/details/:id" element={<AttendanceDetails />} />
         </Route>
         <Route path="classes" element={<AdminClasses />} />
-        <Route path="examinations" element={<AdminExaminations />} />
+        {/* <Route path="examinations" element={<AdminExaminations />} /> */}
         <Route path="notices" element={<AdminNotices />} />
         <Route path="schedule" element={<AdminSchedule />} />
         <Route path="students">
@@ -94,12 +96,19 @@ const App = () => (
             element={<AdminHRRecruit edit={true} />}
           />
         </Route>
-        <Route path="fees" element={<AdminFees />}>
-        </Route>
         <Route path="payroll" element={<AdminPayroll />}>
           <Route index element={<AdminPayrollList />} />
           <Route path="details/:teacherId" element={<AdminPayrollDetails />} />
           <Route path="salaries" element={<AdminSalary />} />
+        </Route>
+        <Route path="fees" element={<AdminFees />}>
+          <Route index element={<AdminFeesList />} />
+          {/* <Route path="details/:teacherId" element={<AdminPayrollDetails />} /> */}
+          {/* <Route path="salaries" element={<AdminSalary />} /> */}
+        </Route>
+        <Route path="examinations">
+          <Route index element={<AdminExaminations />} />
+          <Route path=":examId" element={<AdminExaminationDetails />} />
         </Route>
       </Route>
 

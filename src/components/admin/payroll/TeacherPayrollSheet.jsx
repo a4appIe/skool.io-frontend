@@ -90,7 +90,7 @@ const TeacherPayrollSheet = ({
         <div className="px-6 py-4 border-b border-gray-200 bg-red-50">
           <SheetHeader className="text-left">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-red-600 rounded-lg">
+              <div className="p-2 bg-red-700 rounded-lg">
                 <DollarSign className="h-5 w-5 text-white" />
               </div>
               <div>
@@ -114,7 +114,7 @@ const TeacherPayrollSheet = ({
             {/* Teacher Information Section */}
             <div className="space-y-4">
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-red-600" />
+                <User className="h-4 w-4 text-red-700" />
                 <h3 className="font-semibold text-gray-900">
                   Teacher Information
                 </h3>
@@ -162,7 +162,7 @@ const TeacherPayrollSheet = ({
             {/* Payment Details Section */}
             <div className="space-y-4 pt-4 border-t border-gray-200">
               <div className="flex items-center gap-2">
-                <IndianRupee className="h-4 w-4 text-red-600" />
+                <IndianRupee className="h-4 w-4 text-red-700" />
                 <h3 className="font-semibold text-gray-900">Payment Details</h3>
               </div>
 
@@ -172,18 +172,18 @@ const TeacherPayrollSheet = ({
                     Payment Amount
                   </Label>
                   <div className="relative">
-                    <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-600" />
+                    <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-700" />
                     <Input
                       value={selectedTeacher?.salary || 0}
                       disabled
-                      className="bg-gray-50 pl-10 text-lg font-semibold text-red-600"
+                      className="bg-gray-50 pl-10 text-lg font-semibold text-red-700"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <Label className="text-sm font-medium text-gray-700">
-                    Payment Month <span className="text-red-600">*</span>
+                    Payment Month <span className="text-red-700">*</span>
                   </Label>
                   <div className="relative">
                     <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 z-10" />
@@ -191,7 +191,7 @@ const TeacherPayrollSheet = ({
                       value={selectedMonth}
                       onValueChange={setSelectedMonth}
                     >
-                      <SelectTrigger className="pl-10 focus:border-red-600 focus:ring-red-600">
+                      <SelectTrigger className="pl-10 focus:border-red-700 focus:ring-red-700">
                         <SelectValue placeholder="Select month" />
                       </SelectTrigger>
                       <SelectContent>
@@ -210,7 +210,7 @@ const TeacherPayrollSheet = ({
             {/* Payment Information */}
             <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
               <div className="flex items-start gap-2">
-                <CreditCard className="h-4 w-4 text-red-600 mt-0.5 flex-shrink-0" />
+                <CreditCard className="h-4 w-4 text-red-700 mt-0.5 flex-shrink-0" />
                 <div className="text-sm text-red-800">
                   <p className="font-medium mb-1">Payment Information:</p>
                   <ul className="text-xs space-y-1 list-disc list-inside">
@@ -228,7 +228,7 @@ const TeacherPayrollSheet = ({
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
           <SheetFooter>
             <Button
-              className="w-full bg-red-600 hover:bg-red-700"
+              className="w-full bg-red-700 hover:bg-red-800"
               onClick={handleProcessPayment}
               disabled={loading || !selectedMonth}
             >

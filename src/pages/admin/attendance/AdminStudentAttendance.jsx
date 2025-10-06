@@ -1,10 +1,10 @@
-/* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -12,26 +12,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
 import {
   UserCheck,
   Search,
   Users,
   Filter,
-  Phone,
-  Eye,
   RefreshCw,
   UserX,
-  AlertCircle,
   Loader2,
   BookOpen,
   CalendarDays,
   TrendingUp,
-  TrendingDown,
   Download,
-  User,
-  School,
-  Hash,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
 import { API_URL } from "@/utils/constants";
@@ -42,6 +35,7 @@ import AttendanceError from "@/components/admin/attendance/AttendanceError";
 import AttendanceStudentsCard from "@/components/admin/attendance/AttendanceStudentsCard";
 
 export default function AdminStudentAttendance() {
+  const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
   const [error, setError] = useState(null);
@@ -54,7 +48,6 @@ export default function AdminStudentAttendance() {
     attendanceLoading: false,
   });
 
-  // FIXED: Moved attendanceData to separate state
   const [attendanceData, setAttendanceData] = useState({});
 
   // Fetch Classes and Students Data
@@ -79,7 +72,6 @@ export default function AdminStudentAttendance() {
     fetchData();
   }, []);
 
-  // Moved functions inside component but wrapped with useCallback
   const fetchStudentAttendance = useCallback(async (studentId) => {
     try {
       console.log(`📋 Fetching attendance for student: ${studentId}`);
@@ -189,7 +181,6 @@ export default function AdminStudentAttendance() {
     [fetchStudentAttendance]
   );
 
-  // Proper useEffect for fetching attendance when class changes
   useEffect(() => {
     const fetchClassAttendance = async () => {
       if (state.selectedClass === "all") {
@@ -197,7 +188,6 @@ export default function AdminStudentAttendance() {
         return;
       }
 
-      // Filter students by selected class
       const studentsInClass = students.filter(
         (student) =>
           student.studentClass &&
@@ -214,23 +204,19 @@ export default function AdminStudentAttendance() {
       await fetchAttendanceForStudents(studentsInClass);
     };
 
-    // Only fetch if we have students and a selected class
     if (students.length > 0 && state.selectedClass) {
       fetchClassAttendance();
     }
   }, [state.selectedClass, students, fetchAttendanceForStudents]);
 
-  // Memoized classes list with "All Classes" option
   const CLASSES_LIST = useMemo(
     () => [{ _id: "all", className: "All Classes" }, ...classes],
     [classes]
   );
 
-  // Filter students based on selected class and search query
   const filteredStudents = useMemo(() => {
     let filtered = students;
 
-    // Filter by class
     if (state.selectedClass !== "all") {
       filtered = filtered.filter(
         (student) =>
@@ -240,7 +226,6 @@ export default function AdminStudentAttendance() {
       );
     }
 
-    // Filter by search query
     if (state.searchQuery.trim()) {
       const query = state.searchQuery.toLowerCase().trim();
       filtered = filtered.filter(
@@ -254,7 +239,6 @@ export default function AdminStudentAttendance() {
     return filtered;
   }, [students, state.selectedClass, state.searchQuery]);
 
-  // Statistics calculation based on real attendance data
   const statistics = useMemo(() => {
     const totalStudents = filteredStudents.length;
     const studentsWithAttendance = filteredStudents.filter(
@@ -292,7 +276,6 @@ export default function AdminStudentAttendance() {
     };
   }, [filteredStudents, attendanceData]);
 
-  // Event handlers
   const updateState = useCallback((updates) => {
     setState((prev) => ({ ...prev, ...updates }));
   }, []);
@@ -363,11 +346,11 @@ export default function AdminStudentAttendance() {
 
   if (state.isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center space-y-4">
           <div className="relative">
-            <Loader2 className="h-16 w-16 animate-spin text-blue-600 mx-auto" />
-            <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
+            <Loader2 className="h-16 w-16 animate-spin text-red-700 mx-auto" />
+            <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-20"></div>
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-semibold text-gray-900">
@@ -382,34 +365,41 @@ export default function AdminStudentAttendance() {
     );
   }
 
-  if (error) <AttendanceError error={error} />;
+  if (error) return <AttendanceError error={error} />;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <Card className="shadow-sm border-0 bg-white/80 backdrop-blur-sm p-0">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="space-y-2">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-3">
-                  <UserCheck className="h-6 w-6 lg:h-8 lg:w-8 text-blue-600" />
-                  Attendance Management
-                </h1>
-                <p className="text-gray-600 text-sm lg:text-base">
-                  {state.selectedClass === "all"
-                    ? "Monitor attendance across all classes"
-                    : `Track attendance for ${getClassName(
-                        state.selectedClass
-                      )}`}
-                </p>
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate(-1)}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Attendance Management
+                  </h1>
+                  <p className="text-xs text-gray-500">
+                    {state.selectedClass === "all"
+                      ? "Monitor attendance across all classes"
+                      : `Track attendance for ${getClassName(
+                          state.selectedClass
+                        )}`}
+                  </p>
+                </div>
               </div>
-
-              <div className="flex flex-col sm:flex-row gap-2">
+              <div className="flex items-center gap-3 flex-wrap">
                 <Button
                   onClick={handleRefreshAttendance}
                   variant="outline"
-                  className="border-blue-200 hover:bg-blue-50"
+                  className="border-red-200 hover:bg-red-50"
                   disabled={
                     state.attendanceLoading || state.selectedClass === "all"
                   }
@@ -423,23 +413,22 @@ export default function AdminStudentAttendance() {
                 </Button>
                 <Button
                   onClick={handleExportData}
-                  variant="outline"
-                  className="border-blue-200 hover:bg-blue-50"
+                  className="bg-red-700 hover:bg-red-800"
                 >
                   <Download className="h-4 w-4 mr-2" />
                   Export Data
                 </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Filters */}
-        <Card className="shadow-sm border-l-4 border-l-blue-500">
+        <Card className="shadow-sm border-l-4 border-l-red-700">
           <CardContent className="p-4">
             <div className="flex flex-col xl:flex-row xl:items-center gap-4">
               <div className="flex items-center gap-2 min-w-0">
-                <Filter className="h-5 w-5 text-blue-600 flex-shrink-0" />
+                <Filter className="h-5 w-5 text-red-700 flex-shrink-0" />
                 <Label className="font-semibold text-gray-700 whitespace-nowrap">
                   Filters:
                 </Label>
@@ -455,7 +444,7 @@ export default function AdminStudentAttendance() {
                     value={state.selectedClass}
                     onValueChange={handleClassChange}
                   >
-                    <SelectTrigger className="w-full border-blue-200 focus:border-blue-400 transition-colors">
+                    <SelectTrigger className="w-full transition-colors">
                       <SelectValue placeholder="Select a class" />
                     </SelectTrigger>
                     <SelectContent>
@@ -463,7 +452,7 @@ export default function AdminStudentAttendance() {
                         <SelectItem key={cls._id} value={cls._id}>
                           <div className="flex items-center gap-2">
                             {cls._id === "all" ? (
-                              <Users className="h-4 w-4 text-blue-600" />
+                              <Users className="h-4 w-4 text-red-700" />
                             ) : (
                               <BookOpen className="h-4 w-4 text-gray-600" />
                             )}
@@ -486,7 +475,7 @@ export default function AdminStudentAttendance() {
                       value={state.searchQuery}
                       onChange={handleSearchChange}
                       placeholder="Search by name, username, admission number..."
-                      className="pl-10 pr-10 border-blue-200 focus:border-blue-400"
+                      className="pl-10 pr-10"
                     />
                     {state.searchQuery && (
                       <Button
@@ -507,7 +496,7 @@ export default function AdminStudentAttendance() {
                   {filteredStudents.length} students
                 </Badge>
                 {state.selectedClass !== "all" && (
-                  <Badge className="bg-blue-100 text-blue-800 border-blue-200">
+                  <Badge className="bg-red-100 text-red-800 border-red-200">
                     {getClassName(state.selectedClass)}
                   </Badge>
                 )}
@@ -522,14 +511,13 @@ export default function AdminStudentAttendance() {
           </CardContent>
         </Card>
 
-        {/* Simplified Class Info Card - Only show when specific class is selected */}
+        {/* Class Info Card */}
         {state.selectedClass !== "all" && (
-          <Card className="shadow-sm border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-blue-50">
+          <Card className="shadow-sm border-l-4 border-l-red-700 bg-gradient-to-r from-transparent to-red-50">
             <CardContent className="p-4">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                {/* Class Information */}
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center text-white">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center text-white">
                     <BookOpen className="h-6 w-6" />
                   </div>
                   <div>
@@ -542,10 +530,9 @@ export default function AdminStudentAttendance() {
                   </div>
                 </div>
 
-                {/* Class Stats */}
                 <div className="flex items-center gap-4">
                   <div className="text-center">
-                    <p className="text-xl font-bold text-blue-600">
+                    <p className="text-xl font-bold text-red-700">
                       {filteredStudents.length}
                     </p>
                     <p className="text-xs text-gray-600">Students</p>
@@ -575,33 +562,33 @@ export default function AdminStudentAttendance() {
               title: "Total Students",
               value: statistics.totalStudents,
               icon: Users,
-              gradient: "from-gray-500 to-gray-600",
+              gradient: "from-red-700 to-red-800",
             },
             {
               title: "Excellent (≥90%)",
               value: statistics.excellentAttendance,
               icon: TrendingUp,
-              gradient: "from-green-500 to-green-600",
+              gradient: "from-red-700 to-red-800",
             },
             {
               title: "Good (80-89%)",
               value: statistics.goodAttendance,
               icon: UserCheck,
-              gradient: "from-yellow-500 to-yellow-600",
+              gradient: "from-red-700 to-red-800",
             },
             {
               title: "Poor (<75%)",
               value: statistics.poorAttendance,
               icon: UserX,
-              gradient: "from-red-500 to-red-600",
+              gradient: "from-red-700 to-red-800",
             },
             {
               title: "Average",
               value: `${statistics.averageAttendance}%`,
               icon: CalendarDays,
-              gradient: "from-blue-500 to-blue-600",
+              gradient: "from-red-700 to-red-800",
             },
-          ].map((stat, index) => (
+          ].map((stat) => (
             <Card
               key={stat.title}
               className="flex-1 shadow-md hover:shadow-lg transition-all duration-200 hover:-translate-y-1"
@@ -627,7 +614,7 @@ export default function AdminStudentAttendance() {
           ))}
         </div>
 
-        {/* Enhanced Responsive Students Display */}
+        {/* Students Display */}
         <AttendanceStudentsCard
           attendanceData={attendanceData}
           filteredStudents={filteredStudents}

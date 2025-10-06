@@ -53,7 +53,7 @@ const NoticeCard = ({ notice, onEdit, onDelete }) => {
   };
 
   return (
-    <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+    <Card className="bg-white border border-gray-500 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex-1">
@@ -116,7 +116,7 @@ const NoticeCard = ({ notice, onEdit, onDelete }) => {
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   onClick={() => onDelete(notice)}
-                  className="bg-red-600 hover:bg-red-700"
+                  className="bg-red-700 hover:bg-red-800"
                 >
                   Delete
                 </AlertDialogAction>

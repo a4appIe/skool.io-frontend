@@ -42,8 +42,8 @@ const SCHEDULE_TYPES = {
 };
 
 const CALENDAR_COLORS = {
-  [SCHEDULE_TYPES.CLASS]: "#3b82f6",
-  [SCHEDULE_TYPES.EVENT]: "#dc2626",
+  [SCHEDULE_TYPES.CLASS]: "#b91c1c",
+  [SCHEDULE_TYPES.EVENT]: "#991b1b",
   [SCHEDULE_TYPES.HOLIDAY]: "#f59e0b",
   DEFAULT: "#6b7280",
 };
@@ -1053,15 +1053,15 @@ export default function AdminSchedule() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center space-y-4">
           <div className="relative">
-            <Loader2 className="h-16 w-16 animate-spin text-red-600 mx-auto" />
+            <Loader2 className="h-16 w-16 animate-spin text-red-700 mx-auto" />
             <div className="absolute inset-0 bg-red-100 rounded-full animate-ping opacity-20"></div>
           </div>
           <div className="space-y-2">
             <h2 className="text-xl font-semibold text-gray-900">
-              Loading Schedule Data..
+              Loading Schedule Data...
             </h2>
             <p className="text-gray-600 max-w-md">
               {isProcessing
@@ -1071,13 +1071,13 @@ export default function AdminSchedule() {
                 : "Please wait while we fetch classes, schedules, and periods..."}
             </p>
             <div className="flex justify-center space-x-1">
-              <div className="w-2 h-2 bg-red-600 rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-red-700 rounded-full animate-bounce"></div>
               <div
-                className="w-2 h-2 bg-red-600 rounded-full animate-bounce"
+                className="w-2 h-2 bg-red-700 rounded-full animate-bounce"
                 style={{ animationDelay: "0.1s" }}
               ></div>
               <div
-                className="w-2 h-2 bg-red-600 rounded-full animate-bounce"
+                className="w-2 h-2 bg-red-700 rounded-full animate-bounce"
                 style={{ animationDelay: "0.2s" }}
               ></div>
             </div>
@@ -1089,10 +1089,10 @@ export default function AdminSchedule() {
 
   if (processingError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="p-6 text-center">
-            <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+            <AlertCircle className="h-12 w-12 text-red-700 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Failed to Load Data
             </h2>
@@ -1101,7 +1101,7 @@ export default function AdminSchedule() {
             </p>
             <Button
               onClick={() => window.location.reload()}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-700 hover:bg-red-800"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Reload Page
@@ -1117,26 +1117,26 @@ export default function AdminSchedule() {
       title: "Total Items",
       value: statistics.total,
       icon: Clock,
-      gradient: "from-gray-500 to-gray-600",
+      gradient: "from-red-700 to-red-800",
     },
     {
       title: "Classes",
       value: statistics.classes,
       icon: BookOpen,
-      gradient: "from-blue-500 to-blue-600",
+      gradient: "from-red-700 to-red-800",
       warning: hiddenPeriodsCount > 0 ? `${hiddenPeriodsCount} hidden` : null,
     },
     {
       title: "Events",
       value: statistics.events,
       icon: PartyPopper,
-      gradient: "from-red-500 to-red-600",
+      gradient: "from-red-700 to-red-800",
     },
     {
       title: "Holidays",
       value: statistics.holidays,
       icon: Hotel,
-      gradient: "from-orange-500 to-orange-600",
+      gradient: "from-red-700 to-red-800",
       subtitle:
         statistics.hiddenByHolidays > 0
           ? `Hidden ${statistics.hiddenByHolidays} classes`
@@ -1145,7 +1145,7 @@ export default function AdminSchedule() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 lg:p-6">
+    <div className="min-h-screen bg-gray-50 p-4 lg:p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
         <Header

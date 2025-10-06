@@ -30,6 +30,7 @@ import {
   X,
   Phone,
   Mail,
+  Users,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -58,13 +59,14 @@ export default function AdminPayrollList() {
       setTeachers(data || []);
     } catch (error) {
       console.error("Error fetching payroll data:", error);
+      toast.error("Failed to fetch teachers");
     } finally {
       setLoading(false);
     }
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat("en-IN", {
       style: "currency",
       currency: "INR",
     }).format(amount);
@@ -84,10 +86,10 @@ export default function AdminPayrollList() {
       if (searchTerm.trim()) {
         const search = searchTerm.toLowerCase();
         return (
-          teacher.name.toLowerCase().includes(search) ||
-          teacher.username.toLowerCase().includes(search) ||
-          teacher.email.toLowerCase().includes(search) ||
-          teacher.phone.toLowerCase().includes(search)
+          teacher.name?.toLowerCase().includes(search) ||
+          teacher.username?.toLowerCase().includes(search) ||
+          teacher.email?.toLowerCase().includes(search) ||
+          teacher.phone?.toLowerCase().includes(search)
         );
       }
       return true;
@@ -129,9 +131,12 @@ export default function AdminPayrollList() {
       if (response?.success) {
         setSelectedTeacher(null);
         setSelectedMonth("January");
+        fetchTeachersData();
+        toast.success("Payment processed successfully!");
       }
     } catch (error) {
       console.error("Payment processing error:", error);
+      toast.error("Failed to process payment");
     }
   };
 
@@ -139,7 +144,7 @@ export default function AdminPayrollList() {
   const handleOpenPaymentSheet = (payroll, e) => {
     e.stopPropagation(); // Prevent event bubbling
     setSelectedTeacher(payroll);
-    setSelectedMonth(payroll.payrollMonth || "11");
+    setSelectedMonth("January");
   };
 
   const handleDetails = (payrollId) => {
@@ -148,12 +153,8 @@ export default function AdminPayrollList() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
       </div>
     );
   }
@@ -162,14 +163,14 @@ export default function AdminPayrollList() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm rounded-xl">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
               <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
-                  onClick={() => window.history.back()}
-                  className="mr-2 bg-red-600 rounded-md hover:bg-red-700 text-white hover:text-white"
+                  onClick={() => navigate(-1)}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -180,16 +181,19 @@ export default function AdminPayrollList() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
                 <Button
                   variant="outline"
                   onClick={fetchTeachersData}
-                  className="border-gray-300 text-sm flex-1"
+                  className="border-gray-300 text-sm"
                 >
                   <RefreshCw className="h-3 w-3 mr-2" />
                   Refresh
                 </Button>
-                <Button className="bg-red-600 hover:bg-red-700 text-sm flex-1">
+                <Button
+                  className="bg-red-700 hover:bg-red-800 text-sm"
+                  onClick={() => toast.info("Feature coming soon!")}
+                >
                   <Download className="h-3 w-3 mr-2" />
                   Export Report
                 </Button>
@@ -233,9 +237,9 @@ export default function AdminPayrollList() {
 
         {/* Active Filters Display */}
         {(statusFilter !== "all" || searchTerm) && (
-          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <Filter className="h-4 w-4 text-blue-600" />
-            <span className="text-sm font-medium text-blue-800">
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <Filter className="h-4 w-4 text-red-700" />
+            <span className="text-sm font-medium text-red-800">
               Active Filters:
               {statusFilter !== "all" && ` Status: ${statusFilter}`}
               {searchTerm && ` Search: "${searchTerm}"`}
@@ -250,7 +254,7 @@ export default function AdminPayrollList() {
                 setStatusFilter("all");
                 setSearchTerm("");
               }}
-              className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+              className="h-6 w-6 p-0 text-red-700 hover:text-red-800 hover:bg-red-100"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -259,114 +263,116 @@ export default function AdminPayrollList() {
 
         {/* Payroll Table */}
         {filteredTeachers.length > 0 ? (
-          <Card className="overflow-hidden p-0">
+          <Card className="overflow-hidden p-0 shadow-sm **:bg-gray-50">
             <CardContent className="p-0">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="font-semibold text-gray-700">
-                      Teacher
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      Contact
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      Salary
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700 text-center">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredTeachers.map((teacher) => (
-                    <TableRow
-                      key={teacher._id}
-                      className="hover:bg-gray-50 border-b border-gray-100"
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
-                            {teacher.profileImage ? (
-                              <img
-                                src={teacher.profileImage}
-                                alt={teacher.teacherName}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <User className="h-5 w-5 text-gray-500" />
-                            )}
-                          </div>
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {teacher.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              {teacher.username}
-                            </div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center gap-1 text-sm text-gray-600">
-                            <Phone className="h-3 w-3" />
-                            <span>{teacher.phone}</span>
-                          </div>
-                          <div className="flex items-center gap-1 text-sm text-gray-600">
-                            <Mail className="h-3 w-3" />
-                            <span className="truncate max-w-[150px]">
-                              {teacher.email}
-                            </span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="font-semibold text-gray-900">
-                          {formatCurrency(teacher.salary)}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center justify-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleDetails(teacher._id)}
-                            className="border-gray-300"
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Details
-                          </Button>
-
-                          {/* Pay Button */}
-                          <Button
-                            size="sm"
-                            className="bg-red-600 hover:bg-red-700"
-                            onClick={(e) => handleOpenPaymentSheet(teacher, e)}
-                          >
-                            <DollarSign className="h-4 w-4 mr-1" />
-                            Pay
-                          </Button>
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto !p-5">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50 border-b border-gray-200">
+                      <TableHead className="font-semibold text-gray-700">
+                        Teacher
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Contact
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Salary
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700 text-end">
+                        Actions
+                      </TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredTeachers.map((teacher) => (
+                      <TableRow
+                        key={teacher._id}
+                        className="hover:bg-gray-50 border-b border-gray-100 transition-colors"
+                      >
+                        <TableCell className="py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center text-white font-semibold flex-shrink-0">
+                              {teacher.profileImage ? (
+                                <img
+                                  src={teacher.profileImage}
+                                  alt={teacher.name}
+                                  className="w-10 h-10 rounded-full object-cover"
+                                />
+                              ) : (
+                                teacher.name?.charAt(0)?.toUpperCase() || "?"
+                              )}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="font-medium text-gray-900 truncate">
+                                {teacher.name}
+                              </div>
+                              <div className="text-sm text-gray-500 truncate">
+                                {teacher.username}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-1 text-sm text-gray-600">
+                              <Phone className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate">{teacher.phone || "N/A"}</span>
+                            </div>
+                            <div className="flex items-center gap-1 text-sm text-gray-600">
+                              <Mail className="h-3 w-3 flex-shrink-0" />
+                              <span className="truncate max-w-[150px]">
+                                {teacher.email || "N/A"}
+                              </span>
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <span className="font-semibold text-gray-900">
+                            {formatCurrency(teacher.salary || 0)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="py-4">
+                          <div className="flex items-center justify-end gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleDetails(teacher._id)}
+                              className="border-gray-300 hover:bg-gray-50"
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              Details
+                            </Button>
+
+                            {/* Pay Button */}
+                            <Button
+                              size="sm"
+                              className="bg-red-700 hover:bg-red-800 text-white"
+                              onClick={(e) => handleOpenPaymentSheet(teacher, e)}
+                            >
+                              <DollarSign className="h-4 w-4 mr-1" />
+                              Pay
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         ) : (
-          <div className="text-center py-12">
-            <DollarSign className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-lg font-semibold text-gray-900 mb-2">
               {searchTerm || statusFilter !== "all"
-                ? "No Payroll Records Found"
-                : "No Payroll Data Available"}
+                ? "No Teachers Found"
+                : "No Teachers Available"}
             </h3>
             <p className="text-gray-600 mb-4">
               {searchTerm || statusFilter !== "all"
                 ? "Try adjusting your search or filter criteria."
-                : "Payroll data will appear here once teachers are added to the system."}
+                : "Teachers will appear here once they are added to the system."}
             </p>
             {(searchTerm || statusFilter !== "all") && (
               <Button
@@ -375,6 +381,7 @@ export default function AdminPayrollList() {
                   setStatusFilter("all");
                   setSearchTerm("");
                 }}
+                className="border-red-200 hover:bg-red-50"
               >
                 Clear Filters
               </Button>

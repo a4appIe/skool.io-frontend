@@ -34,8 +34,10 @@ import {
   UserCheck,
   Filter,
   X,
+  ArrowLeft,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 import NoticeForm from "@/components/admin/notice/NoticeForm";
 import NoticeCard from "@/components/admin/notice/NoticeCard";
 import {
@@ -49,6 +51,7 @@ import NoticeStats from "@/components/admin/notice/NoticeStats";
 
 // Main AdminNotices Component
 export default function AdminNotices() {
+  const navigate = useNavigate();
   const [notices, setNotices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -188,12 +191,8 @@ export default function AdminNotices() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-          </div>
-        </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
       </div>
     );
   }
@@ -202,63 +201,83 @@ export default function AdminNotices() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <h1 className="text-2xl font-bold text-gray-900">All Notices</h1>
-
-          <div className="flex items-center gap-3">
-            {/* Audience Filter */}
-            <div className="flex items-center gap-2 flex-1">
-              <Select value={audienceFilter} onValueChange={setAudienceFilter}>
-                <SelectTrigger className="w-48 border-gray-300">
-                  <SelectValue placeholder="Filter by audience" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">
-                    <div className="flex items-center gap-2">
-                      <Users className="h-4 w-4" />
-                      <span>All Notices ({statistics.all || 0})</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="teacher">
-                    <div className="flex items-center gap-2">
-                      <GraduationCap className="h-4 w-4" />
-                      <span>Teachers ({statistics.teacher || 0})</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="student">
-                    <div className="flex items-center gap-2">
-                      <UserCheck className="h-4 w-4" />
-                      <span>Students ({statistics.student || 0})</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Create Notice Button */}
-            <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-              <SheetTrigger asChild>
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
+              <div className="flex items-center gap-3">
                 <Button
-                  className="bg-red-700 hover:bg-red-800 text-white shadow"
-                  onClick={handleCreateNotice}
+                  variant="ghost"
+                  onClick={() => navigate(-1)}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
                 >
-                  <Plus className="h-4 w-4" />
-                  Add New Notice
+                  <ArrowLeft className="h-4 w-4" />
                 </Button>
-              </SheetTrigger>
-              <SheetContent
-                side="right"
-                className="!w-full md:!w-[800px] !max-w-none p-0 border-gray-200 [&>button.absolute]:hidden"
-              >
-                <NoticeForm
-                  notice={editingNotice}
-                  onClose={handleCloseSheet}
-                  onSuccess={handleFormSuccess}
-                  createNotice={createNotice}
-                  updateNotice={updateNotice}
-                />
-              </SheetContent>
-            </Sheet>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">All Notices</h1>
+                  <p className="text-xs text-gray-500">
+                    Manage and view all notices
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Audience Filter */}
+                <Badge variant="secondary" className="px-3 py-1">
+                  {statistics.all} Total Notices
+                </Badge>
+
+                <Select value={audienceFilter} onValueChange={setAudienceFilter}>
+                  <SelectTrigger className="w-48 border-red-200 focus:border-red-400">
+                    <SelectValue placeholder="Filter by audience" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-4 w-4" />
+                        <span>All Notices ({statistics.all || 0})</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="teacher">
+                      <div className="flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4" />
+                        <span>Teachers ({statistics.teacher || 0})</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="student">
+                      <div className="flex items-center gap-2">
+                        <UserCheck className="h-4 w-4" />
+                        <span>Students ({statistics.student || 0})</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {/* Create Notice Button */}
+                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      className="bg-red-700 hover:bg-red-800 text-white"
+                      onClick={handleCreateNotice}
+                    >
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Notice
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent
+                    side="right"
+                    className="!w-full md:!w-[500px] !max-w-none p-0 border-gray-200 [&>button.absolute]:hidden"
+                  >
+                    <NoticeForm
+                      notice={editingNotice}
+                      onClose={handleCloseSheet}
+                      onSuccess={handleFormSuccess}
+                      createNotice={createNotice}
+                      updateNotice={updateNotice}
+                    />
+                  </SheetContent>
+                </Sheet>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -271,9 +290,9 @@ export default function AdminNotices() {
 
         {/* Active Filter Display */}
         {audienceFilter !== "all" && (
-          <div className="flex items-center gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
             {getFilterIcon(audienceFilter)}
-            <span className="text-sm font-medium text-blue-800">
+            <span className="text-sm font-medium text-red-800">
               Showing notices: {getFilterLabel(audienceFilter)}
             </span>
             <Badge variant="secondary" className="ml-auto">
@@ -283,7 +302,7 @@ export default function AdminNotices() {
               size="sm"
               variant="ghost"
               onClick={() => setAudienceFilter("all")}
-              className="h-6 w-6 p-0 text-blue-600 hover:text-blue-800"
+              className="h-6 w-6 p-0 text-red-700 hover:text-red-800 hover:bg-red-100"
             >
               <X className="h-4 w-4" />
             </Button>

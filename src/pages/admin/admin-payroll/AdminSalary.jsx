@@ -158,7 +158,7 @@ const AdminSalary = () => {
                 <Button
                   variant="ghost"
                   onClick={() => navigate("/admin/payroll")}
-                  className="mr-2 bg-red-600 rounded-md hover:bg-red-700 text-white hover:text-white"
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
                 >
                   <ArrowLeft className="h-4 w-4" />
                 </Button>
@@ -188,12 +188,12 @@ const AdminSalary = () => {
                 <CardTitle className="flex items-center gap-2">
                   {isEditing ? (
                     <>
-                      <Edit className="h-5 w-5 text-red-600" />
+                      <Edit className="h-5 w-5 text-red-700" />
                       Edit Salary
                     </>
                   ) : (
                     <>
-                      <Plus className="h-5 w-5 text-red-600" />
+                      <Plus className="h-5 w-5 text-red-700" />
                       Add New Salary
                     </>
                   )}
@@ -204,7 +204,7 @@ const AdminSalary = () => {
                   {/* Name */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">
-                      Name <span className="text-red-600">*</span>
+                      Name <span className="text-red-700">*</span>
                     </Label>
                     <Input
                       type="text"
@@ -221,7 +221,7 @@ const AdminSalary = () => {
                   {/* Amount */}
                   <div className="space-y-2">
                     <Label className="text-sm font-medium text-gray-700">
-                      Amount <span className="text-red-600">*</span>
+                      Amount <span className="text-red-700">*</span>
                     </Label>
                     <Input
                       type="number"
@@ -241,7 +241,7 @@ const AdminSalary = () => {
                       <span className="text-sm font-medium text-gray-700">
                         Total Salary:
                       </span>
-                      <span className="text-lg font-bold text-red-600">
+                      <span className="text-lg font-bold text-red-700">
                         {formatCurrency(calculateTotalSalary())}
                       </span>
                     </div>
@@ -251,7 +251,7 @@ const AdminSalary = () => {
                   <div className="flex gap-3 pt-4">
                     <Button
                       type="submit"
-                      className="flex-1 bg-red-600 hover:bg-red-700"
+                      className="flex-1 bg-red-700 hover:bg-red-800"
                       disabled={loading}
                     >
                       {loading ? (
@@ -289,7 +289,7 @@ const AdminSalary = () => {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
-                    <IndianRupee className="h-5 w-5 text-red-600" />
+                    <IndianRupee className="h-5 w-5 text-red-700" />
                     All Salaries
                   </CardTitle>
                 </div>
@@ -349,7 +349,7 @@ const AdminSalary = () => {
                                     <Button
                                       size="sm"
                                       variant="outline"
-                                      className="border-red-300 text-red-600 hover:bg-red-50"
+                                      className="border-red-700 text-red-700 hover:bg-red-50"
                                     >
                                       <Trash2 className="h-4 w-4" />
                                     </Button>
@@ -371,7 +371,7 @@ const AdminSalary = () => {
                                       </AlertDialogCancel>
                                       <AlertDialogAction
                                         onClick={() => handleDelete(salary)}
-                                        className="bg-red-600 hover:bg-red-700"
+                                        className="bg-red-700 hover:bg-red-800"
                                       >
                                         Delete
                                       </AlertDialogAction>

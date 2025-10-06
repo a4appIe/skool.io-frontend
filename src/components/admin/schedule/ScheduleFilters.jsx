@@ -20,11 +20,11 @@ const ScheduleFilters = ({
   hiddenPeriodsCount,
 }) => {
   return (
-    <Card className="shadow-sm border-l-4 border-l-blue-500">
+    <Card className="shadow-sm border-l-4 border-l-red-700">
       <CardContent className="p-4">
         <div className="flex flex-col xl:flex-row xl:items-center gap-4">
           <div className="flex items-center gap-2 min-w-0">
-            <Filter className="h-5 w-5 text-blue-600 flex-shrink-0" />
+            <Filter className="h-5 w-5 text-red-700 flex-shrink-0" />
             <Label className="font-semibold text-gray-700 whitespace-nowrap">
               Filters:
             </Label>
@@ -37,7 +37,7 @@ const ScheduleFilters = ({
                 value={state.selectedClassFilter}
                 onValueChange={handleClassFilterChange}
               >
-                <SelectTrigger className="w-full border-blue-200 focus:border-blue-400 transition-colors">
+                <SelectTrigger className="w-full transition-colors">
                   <SelectValue placeholder="Select a class" />
                 </SelectTrigger>
                 <SelectContent>
@@ -45,9 +45,9 @@ const ScheduleFilters = ({
                     <SelectItem key={cls._id} value={cls._id}>
                       <div className="flex items-center gap-2">
                         {cls._id === "all" ? (
-                          <Users className="h-4 w-4 text-blue-600" />
+                          <Users className="h-4 w-4 text-red-700" />
                         ) : (
-                          <BookOpen className="h-4 w-4 text-gray-600" />
+                          <BookOpen className="h-4 w-4 text-red-800" />
                         )}
                         {cls.className}
                       </div>

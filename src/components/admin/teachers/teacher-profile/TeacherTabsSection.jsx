@@ -2,7 +2,21 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import React from "react";
-import { BookOpen, Download, ExternalLink, Eye, FileText, Globe, GraduationCap, MapPin, Phone, PhoneCall, Send, Star, User } from "lucide-react";
+import {
+  BookOpen,
+  Download,
+  ExternalLink,
+  Eye,
+  FileText,
+  Globe,
+  GraduationCap,
+  MapPin,
+  Phone,
+  PhoneCall,
+  Send,
+  Star,
+  User,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const TeacherTabsSection = ({
@@ -52,7 +66,7 @@ const TeacherTabsSection = ({
 
         {/* Personal Info Tab */}
         <TabsContent value="personal" className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <div className="space-y-4 bg-red-100 p-6 rounded-lg border border-red-500">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
                 <User className="h-5 w-5 text-red-700" />
@@ -151,7 +165,7 @@ const TeacherTabsSection = ({
                 <GraduationCap className="h-5 w-5" />
                 Education & Experience
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <div className="flex justify-between">
                     <span className="text-gray-600">Qualification:</span>
@@ -174,20 +188,6 @@ const TeacherTabsSection = ({
                 </div>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Department:</span>
-                    <span className="font-medium">{teacher.department}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Designation:</span>
-                    <span className="font-medium">{teacher.designation}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Working Hours:</span>
-                    <span className="font-medium">{teacher.workingHours}</span>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
                     <span className="text-gray-600">Status:</span>
                     <Badge
                       className={
@@ -202,86 +202,6 @@ const TeacherTabsSection = ({
                 </div>
               </div>
             </div>
-
-            {/* Subjects & Classes */}
-            {teacher.subjects && teacher.subjects.length > 0 && (
-              <div className="bg-purple-100 border border-purple-500 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-purple-800 mb-4 flex items-center gap-2">
-                  <BookOpen className="h-5 w-5" />
-                  Subjects & Classes
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Subjects Teaching:
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {teacher.subjects.map((subject, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="bg-purple-100 text-purple-800 border-purple-300"
-                        >
-                          {subject}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-3">
-                      Classes Handling:
-                    </h4>
-                    <div className="flex flex-wrap gap-2">
-                      {teacher.classes.map((className, index) => (
-                        <Badge
-                          key={index}
-                          variant="outline"
-                          className="bg-blue-100 text-blue-800 border-blue-300"
-                        >
-                          {className}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Performance Metrics */}
-            {teacher.performanceMetrics && (
-              <div className="bg-green-100 border border-green-500 rounded-lg p-6">
-                <h3 className="text-lg font-semibold text-green-800 mb-4 flex items-center gap-2">
-                  <Star className="h-5 w-5" />
-                  Performance Overview
-                </h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-700">
-                      {teacher.performanceMetrics.studentsCount}
-                    </div>
-                    <div className="text-sm text-gray-600">Total Students</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-700">
-                      {teacher.performanceMetrics.subjectsTeaching}
-                    </div>
-                    <div className="text-sm text-gray-600">Subjects</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-700">
-                      {teacher.performanceMetrics.classesHandling}
-                    </div>
-                    <div className="text-sm text-gray-600">Classes</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-red-700">
-                      {teacher.performanceMetrics.yearsOfService}
-                    </div>
-                    <div className="text-sm text-gray-600">Years Service</div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </TabsContent>
 
@@ -320,7 +240,7 @@ const TeacherTabsSection = ({
             </div>
 
             {/* Full Address Display */}
-            <div className="mt-6 p-4 bg-white rounded-lg border border-gray-200">
+            <div className="mt-6 p-4 bg-white rounded-lg border border-gray-600">
               <div className="flex items-start gap-3">
                 <MapPin className="h-5 w-5 text-red-700 mt-0.5 flex-shrink-0" />
                 <div>

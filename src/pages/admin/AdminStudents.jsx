@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -8,7 +9,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, SortAsc, UserPlus, Users, X } from "lucide-react";
+import {
+  Search,
+  Filter,
+  SortAsc,
+  UserPlus,
+  Users,
+  X,
+  ArrowLeft,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import StudentCard from "@/components/admin/students/StudentCard";
 import { getAllStudents } from "@/services/student.service";
@@ -63,7 +72,7 @@ export default function AdminStudents() {
       );
     }
 
-    // Class filter - Updated to handle "all"
+    // Class filter
     if (selectedClass && selectedClass !== "all") {
       filtered = filtered.filter(
         (student) => student.studentClass._id === selectedClass
@@ -78,7 +87,7 @@ export default function AdminStudents() {
         case "name_desc":
           return b.name.localeCompare(a.name);
         case "class":
-          return a.studentClass.name.localeCompare(b.studentClass.name);
+          return a.studentClass.className.localeCompare(b.studentClass.className);
         case "admission_date":
           return new Date(b.admissionDate) - new Date(a.admissionDate);
         default:
@@ -95,7 +104,6 @@ export default function AdminStudents() {
     setSortBy("name");
   };
 
-  // Updated active filters count to handle "all" values
   const activeFiltersCount = [
     searchTerm,
     selectedClass !== "all" ? selectedClass : "",
@@ -105,63 +113,73 @@ export default function AdminStudents() {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-red-700"></div>
-        <h1>Loading</h1>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4">
-            <div className="flex items-center gap-3">
-              <Users className="h-8 w-8 text-red-700" />
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  All Students
-                </h1>
-                <p className="text-sm text-gray-500">
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between py-8 flex-col sm:flex-row gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate(-1)}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    All Students
+                  </h1>
+                  <p className="text-xs text-gray-500">
+                    Manage and view all students
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="px-3 py-1">
                   {filteredAndSortedStudents.length} of {students.length}{" "}
                   students
-                </p>
+                </Badge>
+                <Button
+                  className="bg-red-700 hover:bg-red-800 text-white"
+                  onClick={() => navigate("/school/front-desk/admission")}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add New Student
+                </Button>
               </div>
             </div>
-            <Button
-              className="bg-red-700 hover:bg-red-800 text-white shadow-lg"
-              onClick={() => navigate("/school/front-desk/admission")}
-            >
-              <UserPlus className="w-5 h-5 mr-2" />
-              Add New Student
-            </Button>
           </div>
         </div>
-      </div>
 
-      {/* Filters and Search */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        {/* Filters and Search */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search */}
             <div className="flex-1 w-full lg:max-w-md">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Search by name, admission no., roll no., email..."
+                  placeholder="Search by name, admission no., email..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-gray-200 focus:border-red-500 focus:ring-red-500"
+                  className="pl-10 border-gray-300 focus:border-red-600 focus:ring-red-600"
                 />
               </div>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-5 w-full max-w-9xl lg:w-auto">
-              {/* Class Filter - FIXED */}
+            <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+              {/* Class Filter */}
               <Select value={selectedClass} onValueChange={setSelectedClass}>
-                <SelectTrigger className="w-full sm:w-[180px] border-gray-200 flex-1">
-                  <Filter className="h-4 w-4" />
+                <SelectTrigger className="w-full sm:w-[180px] border-gray-300">
+                  <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Filter by Class" />
                 </SelectTrigger>
                 <SelectContent>
@@ -176,8 +194,8 @@ export default function AdminStudents() {
 
               {/* Sort */}
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full sm:w-[160px] border-gray-200 flex-1">
-                  <SortAsc className="h-4 w-4" />
+                <SelectTrigger className="w-full sm:w-[180px] border-gray-300">
+                  <SortAsc className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -194,7 +212,7 @@ export default function AdminStudents() {
                 <Button
                   variant="outline"
                   onClick={clearFilters}
-                  className="border-red-200 text-red-700 hover:bg-red-50"
+                  className="border-red-300 text-red-700 hover:bg-red-50"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Clear ({activeFiltersCount})

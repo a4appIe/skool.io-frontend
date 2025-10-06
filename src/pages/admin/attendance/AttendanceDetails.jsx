@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -52,6 +52,7 @@ const COLORS = {
 
 export default function AttendanceDetails() {
   const { type, id } = useParams();
+  const navigate = useNavigate();
 
   // State management
   const [state, setState] = useState({
@@ -177,7 +178,7 @@ export default function AttendanceDetails() {
   };
 
   const handleBack = () => {
-    window.history.back();
+    navigate(-1);
   };
 
   const handleExport = () => {
@@ -212,9 +213,9 @@ export default function AttendanceDetails() {
 
   if (state.isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="text-center space-y-4">
-          <Loader2 className="h-16 w-16 animate-spin text-blue-600 mx-auto" />
+          <Loader2 className="h-16 w-16 animate-spin text-red-700 mx-auto" />
           <h2 className="text-xl font-semibold text-gray-900">
             Loading Attendance Details
           </h2>
@@ -225,14 +226,14 @@ export default function AttendanceDetails() {
 
   if (!state.student) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="max-w-md w-full">
           <CardContent className="p-6 text-center">
-            <AlertCircle className="h-12 w-12 text-red-600 mx-auto mb-4" />
+            <AlertCircle className="h-12 w-12 text-red-700 mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
               Student Not Found
             </h2>
-            <Button onClick={handleBack} className="mt-4">
+            <Button onClick={handleBack} className="mt-4 bg-red-700 hover:bg-red-800">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Back to Attendance
             </Button>
@@ -243,43 +244,52 @@ export default function AttendanceDetails() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow-md max-w-7xl m-auto rounded-xl py-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                onClick={handleBack}
-                className="p-2 bg-red-600 hover:bg-red-700 text-white hover:text-white rounded-md"
-              >
-                <ArrowLeft className="h-5 w-5" />
-              </Button>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Attendance Details
-                </h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={handleBack}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Attendance Details
+                  </h1>
+                  <p className="text-xs text-gray-500">
+                    {state.student?.name} - {state.student?.studentClass?.className}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleExport}
+                  className="bg-red-700 hover:bg-red-800 text-white"
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
               </div>
             </div>
-            <Button onClick={handleExport} variant="outline" className={"bg-red-600 hover:bg-red-700 text-white hover:text-white"}>
-              <Download className="h-4 w-4" />
-              Export
-            </Button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Content */}
         <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Sidebar - Sticky Pie Chart */}
+          {/* Left Sidebar */}
           <div className="lg:w-1/3">
             <div className="sticky top-6 space-y-6">
               {/* Student Info Card */}
               <Card className="shadow-lg border-0">
                 <CardHeader className="pb-4">
                   <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-2xl font-bold">
+                    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center text-white text-2xl font-bold">
                       {state.student?.name?.charAt(0)}
                     </div>
                     <div>
@@ -312,7 +322,7 @@ export default function AttendanceDetails() {
                     </div>
                     <div>
                       <Label className="text-gray-600">Email</Label>
-                      <p className="font-medium text-blue-600 truncate">
+                      <p className="font-medium text-red-700 truncate">
                         {state.student?.email}
                       </p>
                     </div>
@@ -334,7 +344,7 @@ export default function AttendanceDetails() {
                           onClick={() =>
                             handlePhoneCall(state.student?.guardian?.phone)
                           }
-                          className="flex-1"
+                          className="flex-1 border-red-700 hover:bg-red-50"
                         >
                           <Phone className="h-3 w-3 mr-1" />
                           {state.student?.guardian?.phone}
@@ -349,7 +359,7 @@ export default function AttendanceDetails() {
               <Card className="shadow-lg border-0">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <CalendarDays className="h-5 w-5 text-blue-600" />
+                    <CalendarDays className="h-5 w-5 text-red-700" />
                     Attendance Overview
                   </CardTitle>
                 </CardHeader>
@@ -437,7 +447,7 @@ export default function AttendanceDetails() {
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-blue-600" />
+                    <Calendar className="h-5 w-5 text-red-700" />
                     Attendance Records
                   </CardTitle>
                   <div className="flex gap-2 text-sm">

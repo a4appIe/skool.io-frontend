@@ -190,7 +190,7 @@ const NoticeForm = ({
                       <SelectItem value="all">
                         <div className="flex items-center gap-2">
                           <Users className="h-4 w-4" />
-                          <span>All (Teachers & Students)</span>
+                          <span>All</span>
                         </div>
                       </SelectItem>
                       <SelectItem value="teacher">
@@ -209,7 +209,7 @@ const NoticeForm = ({
                   </Select>
                 </div>
                 <p className="text-xs text-gray-500">
-                  Select who should receive this notice
+                  Visibility
                 </p>
               </div>
 

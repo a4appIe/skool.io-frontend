@@ -43,7 +43,7 @@ const FormSheet = ({
         side="right"
         className="!w-full sm:!w-[600px] !max-w-none p-0 border-gray-200 overflow-y-auto [&>button]:hidden"
       >
-        <div className="bg-gradient-to-r from-red-600 to-red-700 text-white p-4 lg:p-6">
+        <div className="bg-gradient-to-r from-red-700 to-red-800 text-white p-4 lg:p-6">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2 text-white text-lg lg:text-xl">
               {state.isEditMode ? (
@@ -78,7 +78,7 @@ const FormSheet = ({
         <form onSubmit={handleSubmit} className="p-4 lg:p-6 space-y-6">
           <div className="space-y-2">
             <Label htmlFor="type">
-              Type <span className="text-red-500">*</span>
+              Type <span className="text-red-700">*</span>
             </Label>
             <Select
               value={state.formData.type}
@@ -90,13 +90,13 @@ const FormSheet = ({
               <SelectContent>
                 <SelectItem value={SCHEDULE_TYPES.EVENT}>
                   <div className="flex items-center gap-2">
-                    <PartyPopper className="h-4 w-4 text-red-600" />
+                    <PartyPopper className="h-4 w-4 text-red-700" />
                     Event
                   </div>
                 </SelectItem>
                 <SelectItem value={SCHEDULE_TYPES.HOLIDAY}>
                   <div className="flex items-center gap-2">
-                    <Hotel className="h-4 w-4 text-orange-600" />
+                    <Hotel className="h-4 w-4 text-orange-700" />
                     Holiday
                   </div>
                 </SelectItem>
@@ -107,7 +107,7 @@ const FormSheet = ({
             )}
             {(state.formData.type === SCHEDULE_TYPES.HOLIDAY ||
               state.formData.type === SCHEDULE_TYPES.EVENT) && (
-              <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded">
+              <p className="text-xs text-orange-600 bg-orange-50 p-2 rounded flex items-center">
                 <CalendarX className="h-3 w-3 inline mr-1" />
                 Creating a {state.formData.type} will automatically hide all
                 class periods on this date.
@@ -117,7 +117,7 @@ const FormSheet = ({
 
           <div className="space-y-2">
             <Label htmlFor="title">
-              Title <span className="text-red-500">*</span>
+              Title <span className="text-red-700">*</span>
             </Label>
             <Input
               id="title"
@@ -127,13 +127,13 @@ const FormSheet = ({
               className="w-full"
             />
             {state.formErrors.title && (
-              <p className="text-sm text-red-500">{state.formErrors.title}</p>
+              <p className="text-sm text-red-700">{state.formErrors.title}</p>
             )}
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="description">
-              Description <span className="text-red-500">*</span>
+              Description <span className="text-red-700">*</span>
             </Label>
             <Textarea
               id="description"
@@ -144,7 +144,7 @@ const FormSheet = ({
               className="w-full resize-none"
             />
             {state.formErrors.description && (
-              <p className="text-sm text-red-500">
+              <p className="text-sm text-red-700">
                 {state.formErrors.description}
               </p>
             )}
@@ -152,7 +152,7 @@ const FormSheet = ({
 
           <div className="space-y-2">
             <Label htmlFor="date">
-              Date <span className="text-red-500">*</span>
+              Date <span className="text-red-700">*</span>
             </Label>
             <Input
               disabled={state.isEditMode}
@@ -163,14 +163,14 @@ const FormSheet = ({
               className="w-full disabled:bg-gray-300 disabled:cursor-not-allowed"
             />
             {state.formErrors.date && (
-              <p className="text-sm text-red-500">{state.formErrors.date}</p>
+              <p className="text-sm text-red-700">{state.formErrors.date}</p>
             )}
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="startTime">
-                Start Time <span className="text-red-500">*</span>
+                Start Time <span className="text-red-700">*</span>
               </Label>
               <Input
                 disabled={state.isEditMode}
@@ -181,7 +181,7 @@ const FormSheet = ({
                 className="w-full disabled:bg-gray-300 disabled:cursor-not-allowed"
               />
               {state.formErrors.startTime && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-red-700">
                   {state.formErrors.startTime}
                 </p>
               )}
@@ -189,7 +189,7 @@ const FormSheet = ({
 
             <div className="space-y-2">
               <Label htmlFor="endTime">
-                End Time <span className="text-red-500">*</span>
+                End Time <span className="text-red-700">*</span>
               </Label>
               <Input
                 disabled={state.isEditMode}
@@ -200,7 +200,7 @@ const FormSheet = ({
                 className="w-full disabled:bg-gray-300 disabled:cursor-not-allowed"
               />
               {state.formErrors.endTime && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-red-700">
                   {state.formErrors.endTime}
                 </p>
               )}
@@ -222,7 +222,7 @@ const FormSheet = ({
 
             <Button
               type="submit"
-              className="bg-red-600 hover:bg-red-700 text-white w-full sm:w-auto transition-all duration-200"
+              className="bg-red-700 hover:bg-red-800 text-white w-full sm:w-auto transition-all duration-200"
             >
               <Save className="h-4 w-4 mr-2" />
               {state.isEditMode ? "Update" : "Create"}{" "}

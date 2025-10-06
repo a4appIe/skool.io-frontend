@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -8,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, SortAsc, UserPlus, Users, X } from "lucide-react";
+import { Search, Filter, SortAsc, UserPlus, Users, X, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TeacherCard from "@/components/admin/teachers/TeacherCard";
 import useTeacherStore from "@/store/useTeacherStore";
@@ -42,9 +43,9 @@ export default function AdminTeachers() {
       );
     }
 
-    // Status filter - Updated to handle "all"
+    // Status filter
     if (statusFilter && statusFilter !== "all") {
-      filtered = filtered.filter((student) => student.status === statusFilter);
+      filtered = filtered.filter((teacher) => teacher.status === statusFilter);
     }
 
     // Sorting
@@ -54,10 +55,10 @@ export default function AdminTeachers() {
           return a.name.localeCompare(b.name);
         case "name_desc":
           return b.name.localeCompare(a.name);
-        case "class":
-          return a.studentClass.name.localeCompare(b.studentClass.name);
-        case "admission_date":
-          return new Date(b.admissionDate) - new Date(a.admissionDate);
+        case "joining_date":
+          return new Date(b.joiningDate) - new Date(a.joiningDate);
+        case "username":
+          return a.username.localeCompare(b.username);
         default:
           return 0;
       }
@@ -72,44 +73,51 @@ export default function AdminTeachers() {
     setSortBy("name");
   };
 
-  // Updated active filters count to handle "all" values
   const activeFiltersCount = [
     searchTerm,
     statusFilter !== "all" ? statusFilter : "",
   ].filter(Boolean).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 rounded-xl">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-6 gap-4">
-            <div className="flex items-center gap-3">
-              <Users className="h-8 w-8 text-red-700" />
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  All Teachers
-                </h1>
-                <p className="text-sm text-gray-500">
-                  {filteredAndSortedTeachers.length} of {teachers.length}{" "}
-                  teachers
-                </p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate(-1)}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">All Teachers</h1>
+                  <p className="text-xs text-gray-500">
+                    Manage and view all teachers
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge variant="secondary" className="px-3 py-1">
+                  {filteredAndSortedTeachers.length} of {teachers.length} teachers
+                </Badge>
+                <Button
+                  className="bg-red-700 hover:bg-red-800 text-white"
+                  onClick={() => navigate("/school/hr/recruit")}
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Add New Teacher
+                </Button>
               </div>
             </div>
-            <Button
-              className="bg-red-700 hover:bg-red-800 text-white shadow-lg"
-              onClick={() => navigate("/school/hr/recruit")}
-            >
-              <UserPlus className="w-5 h-5 mr-2" />
-              Add New Teacher
-            </Button>
           </div>
         </div>
-      </div>
 
-      {/* Filters and Search */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+        {/* Filters and Search */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             {/* Search */}
             <div className="flex-1 w-full lg:max-w-md">
@@ -119,17 +127,17 @@ export default function AdminTeachers() {
                   placeholder="Search by name, username, email or phone"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 border-gray-200 focus:border-red-500 focus:ring-red-500"
+                  className="pl-10 border-gray-300 focus:border-red-600 focus:ring-red-600"
                 />
               </div>
             </div>
 
             {/* Filters */}
-            <div className="flex flex-wrap gap-5 w-full max-w-9xl lg:w-auto">
-              {/* Status Filter - FIXED */}
+            <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+              {/* Status Filter */}
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[160px] border-gray-200 flex-1">
-                  <Filter className="h-4 w-4" />
+                <SelectTrigger className="w-full sm:w-[180px] border-gray-300">
+                  <Filter className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -141,8 +149,8 @@ export default function AdminTeachers() {
 
               {/* Sort */}
               <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="w-full sm:w-[160px] border-gray-200 flex-1">
-                  <SortAsc className="h-4 w-4" />
+                <SelectTrigger className="w-full sm:w-[180px] border-gray-300">
+                  <SortAsc className="h-4 w-4 mr-2" />
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
@@ -159,7 +167,7 @@ export default function AdminTeachers() {
                 <Button
                   variant="outline"
                   onClick={clearFilters}
-                  className="border-red-200 text-red-700 hover:bg-red-50"
+                  className="border-red-300 text-red-700 hover:bg-red-50"
                 >
                   <X className="h-4 w-4 mr-2" />
                   Clear ({activeFiltersCount})

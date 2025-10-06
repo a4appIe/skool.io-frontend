@@ -1,50 +1,60 @@
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { CalendarIcon, Plus } from 'lucide-react'
+import { CalendarIcon, Plus, ArrowLeft } from 'lucide-react'
 import React from 'react'
+import { useNavigate } from 'react-router-dom'
 import AddPeriods from './AddPeriods'
 
 const Header = ({state, getClassName, updateState, handlePeriodsRefresh}) => {
+  const navigate = useNavigate();
+
   return (
-        <Card className="shadow-sm border-0 bg-white/80 backdrop-blur-sm">
-          <CardContent className="p-4 lg:p-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div className="space-y-2">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 flex items-center gap-3">
-                  <CalendarIcon className="h-6 w-6 lg:h-8 lg:w-8 text-red-600" />
-                  Schedule Management
-                </h1>
-                <p className="text-gray-600 text-sm lg:text-base">
-                  {state.selectedClassFilter === "all"
-                    ? "Manage school events and holidays"
-                    : `Manage schedules for ${getClassName(
-                        state.selectedClassFilter
-                      )} - Academic Year ${state.academicYear}`}
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                  onClick={() => updateState({ isSheetOpen: true })}
-                  className="bg-red-600 hover:bg-red-700 text-white transition-all duration-200 hover:shadow-lg"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Event/Holiday
-                </Button>
-
-                {state.selectedClassFilter !== "all" && (
-                  <AddPeriods
-                    classId={state.selectedClassFilter}
-                    className={getClassName(state.selectedClassFilter)}
-                    onUploadSuccess={() =>
-                      handlePeriodsRefresh(state.selectedClassFilter)
-                    }
-                  />
-                )}
-              </div>
+    <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+      <div className="px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
+          <div className="flex items-center gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => navigate(-1)}
+              className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Schedule Management
+              </h1>
+              <p className="text-xs text-gray-500">
+                {state.selectedClassFilter === "all"
+                  ? "Manage school events and holidays"
+                  : `Manage schedules for ${getClassName(
+                      state.selectedClassFilter
+                    )} - Academic Year ${state.academicYear}`}
+              </p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+
+          <div className="flex items-center gap-3 flex-wrap">
+            <Button
+              onClick={() => updateState({ isSheetOpen: true })}
+              className="bg-red-700 hover:bg-red-800 text-white"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              Add Event/Holiday
+            </Button>
+
+            {state.selectedClassFilter !== "all" && (
+              <AddPeriods
+                classId={state.selectedClassFilter}
+                className={getClassName(state.selectedClassFilter)}
+                onUploadSuccess={() =>
+                  handlePeriodsRefresh(state.selectedClassFilter)
+                }
+              />
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
 

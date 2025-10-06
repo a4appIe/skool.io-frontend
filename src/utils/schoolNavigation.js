@@ -66,9 +66,9 @@ export const schoolMenuItems = [
     title: "Examination",
     icon: Pen,
     subItems: [
-      { title: "Set Examinations", url: "/school/examination/messages" },
-      { title: "Date sheet", url: "/school/examination/notifications" },
-      { title: "Results", url: "/school/examination/notifications" },
+      { title: "Manage Examinations", url: "/school/examinations" },
+      // { title: "Date sheet", url: "/school/examination/notifications" },
+      // { title: "Results", url: "/school/examination/notifications" },
     ],
   },
   {

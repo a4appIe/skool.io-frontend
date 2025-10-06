@@ -41,7 +41,7 @@ const TableRow = ({
       {/* Student Info */}
       <td className="py-4 px-6">
         <div className="flex items-center space-x-4">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center text-white font-semibold">
             {student.name?.charAt(0)?.toUpperCase() || "?"}
           </div>
           <div>
@@ -81,7 +81,7 @@ const TableRow = ({
             variant="ghost"
             size="sm"
             onClick={() => onPhoneCall(student.guardian?.phone)}
-            className="text-blue-600 hover:text-blue-800 hover:bg-blue-50 p-2 h-auto"
+            className="text-red-700 hover:text-red-800 hover:bg-red-50 p-2 h-auto"
           >
             <Phone className="h-4 w-4 mr-2" />
             <span className="text-sm">{student.guardian?.phone}</span>
@@ -144,7 +144,7 @@ const TableRow = ({
         <Button
           onClick={() => handleDetails(student._id)}
           size="sm"
-          className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-4 py-2"
+          className="bg-red-700 hover:bg-red-800 text-white font-medium px-4 py-2"
         >
           <Eye className="h-4 w-4 mr-2" />
           Details
@@ -170,7 +170,7 @@ const StudentCard = ({
       {/* Student Header */}
       <div className="flex items-start justify-between">
         <div className="flex items-start space-x-3">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-lg">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center text-white font-semibold text-lg">
             {student.name?.charAt(0)?.toUpperCase() || "?"}
           </div>
           <div>
@@ -178,7 +178,7 @@ const StudentCard = ({
               {student.name || "Unknown Name"}
             </h3>
             <p className="text-sm text-gray-600">
-              @{student.username || "N/A"}
+              {student.username || "N/A"}
             </p>
           </div>
         </div>
@@ -276,7 +276,7 @@ const StudentCard = ({
             variant="outline"
             size="sm"
             onClick={() => onPhoneCall(student.guardian?.phone)}
-            className="flex-1 text-blue-600 border-blue-200 hover:bg-blue-50"
+            className="flex-1 text-red-700 border-red-200 hover:bg-red-50"
           >
             <Phone className="h-4 w-4 mr-2" />
             Call Guardian
@@ -290,7 +290,7 @@ const StudentCard = ({
         <Button
           onClick={() => onViewDetails(student._id)}
           size="sm"
-          className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+          className="flex-1 bg-red-700 hover:bg-red-800 text-white"
         >
           <Eye className="h-4 w-4 mr-2" />
           View Details

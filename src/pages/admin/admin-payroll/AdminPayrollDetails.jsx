@@ -106,7 +106,7 @@ export default function AdminPayrollDetails() {
     }
 
     return payrolls.filter((record) => {
-      console.log(record.session == sessionFilter)
+      console.log(record.session == sessionFilter);
       // Session filter
       if (sessionFilter !== "all" && record?.session !== sessionFilter) {
         return false;
@@ -203,43 +203,51 @@ export default function AdminPayrollDetails() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-700"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white shadow-lg border-b border-gray-400 max-w-7xl m-auto rounded-2xl py-4">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate("/school/payroll")}
-                className="bg-red-600 hover:bg-red-700 rounded text-white hover:text-white"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <h1 className="text-xl font-bold text-gray-900">
-                Payroll Details
-              </h1>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate("/school/payroll")}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Payroll Details
+                  </h1>
+                  <p className="text-xs text-gray-500">
+                    {teacher?.name || "Teacher"} - Payroll Records
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  className="bg-red-700 hover:bg-red-800 text-white"
+                  onClick={() => {
+                    toast.info("Feature coming soon");
+                  }}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </div>
             </div>
-            <Button
-              className="bg-red-600 hover:bg-red-700 text-white"
-              onClick={() => {
-                toast.info("Feature coming soon");
-              }}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto p-6">
+        {/* Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Sidebar - Teacher Profile and Overview */}
           <div className="space-y-6">
@@ -253,7 +261,7 @@ export default function AdminPayrollDetails() {
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5 text-red-600" />
+                    <Calendar className="h-5 w-5 text-red-700" />
                     Payroll Records
                   </CardTitle>
                   <span className="text-sm text-gray-500">
@@ -369,9 +377,10 @@ export default function AdminPayrollDetails() {
                                       record._id || record.id
                                     )
                                   }
-                                  className="h-8 px-3 border-gray-800 disabled:cursor-not-allowed disabled:bg-gray-400"
+                                  className="h-8 px-3 border-red-700 text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:bg-gray-400"
                                 >
-                                  <Download className="h-3 w-3" /> Slip
+                                  <Download className="h-3 w-3 mr-1" />
+                                  Slip
                                 </Button>
                               </div>
                             </TableCell>

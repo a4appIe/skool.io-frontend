@@ -17,7 +17,7 @@ const AdminOperator = () => {
               <Button
                 variant="ghost"
                 onClick={() => navigate(-1)}
-                className="mr-2 bg-red-600 rounded-md hover:bg-red-700 text-white hover:text-white"
+                className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
               >
                 <ArrowLeft className="h-4 w-4" />
               </Button>
@@ -56,24 +56,24 @@ const AdminOperator = () => {
           {/* Features List */}
           <div className="bg-white rounded-lg p-8 mb-10 text-left max-w-lg mx-auto shadow-sm border border-gray-200">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2 text-lg">
-              <Bell className="h-5 w-5 text-red-600" />
+              <Bell className="h-5 w-5 text-red-700" />
               Upcoming Features:
             </h3>
             <ul className="space-y-3 text-gray-600">
               <li className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                <div className="w-2 h-2 bg-red-700 rounded-full"></div>
                 <span>Create and manage operator accounts</span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                <div className="w-2 h-2 bg-red-700 rounded-full"></div>
                 <span>Assign roles and permissions</span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                <div className="w-2 h-2 bg-red-700 rounded-full"></div>
                 <span>Track operator activities</span>
               </li>
               <li className="flex items-center gap-3">
-                <div className="w-2 h-2 bg-red-600 rounded-full"></div>
+                <div className="w-2 h-2 bg-red-700 rounded-full"></div>
                 <span>Advanced access control</span>
               </li>
             </ul>
@@ -90,7 +90,7 @@ const AdminOperator = () => {
             </Button>
             <Button
               onClick={() => navigate("/school")}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-red-700 hover:bg-red-800"
             >
               Back to Dashboard
             </Button>

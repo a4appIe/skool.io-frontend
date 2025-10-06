@@ -58,7 +58,7 @@ const TeacherInfoCard = ({ teacher }) => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Hash className="h-4 w-4" />
-                    <span>ID: {teacher.teacherId}</span>
+                    <span>{teacher?.username}</span>
                   </div>
                 </div>
               </div>

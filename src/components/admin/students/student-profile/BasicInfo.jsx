@@ -61,7 +61,7 @@ const BasicInfo = ({ student }) => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Bookmark className="h-4 w-4" />
-                    <span>Adm: {student.admissionNumber}</span>
+                    <span>{student.admissionNumber}</span>
                   </div>
                 </div>
               </div>

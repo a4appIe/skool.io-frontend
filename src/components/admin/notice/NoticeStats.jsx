@@ -8,7 +8,7 @@ const NoticeStats = ({ audienceFilter, setAudienceFilter, statistics }) => {
       <Card
         className={`flex-1 cursor-pointer transition-all duration-200 ${
           audienceFilter === "all"
-            ? "ring-2 ring-red-500 bg-red-50"
+            ? "ring-2 ring-blue-500 bg-blue-50"
             : "hover:shadow-md"
         }`}
         onClick={() => setAudienceFilter("all")}
@@ -29,7 +29,7 @@ const NoticeStats = ({ audienceFilter, setAudienceFilter, statistics }) => {
       <Card
         className={`flex-1 cursor-pointer transition-all duration-200 ${
           audienceFilter === "teacher"
-            ? "ring-2 ring-green-500 bg-green-50"
+            ? "ring-2 ring-red-500 bg-red-50"
             : "hover:shadow-md"
         }`}
         onClick={() => setAudienceFilter("teacher")}
@@ -50,7 +50,7 @@ const NoticeStats = ({ audienceFilter, setAudienceFilter, statistics }) => {
       <Card
         className={`flex-1 cursor-pointer transition-all duration-200 ${
           audienceFilter === "student"
-            ? "ring-2 ring-blue-500 bg-blue-50"
+            ? "ring-2 ring-green-500 bg-green-50"
             : "hover:shadow-md"
         }`}
         onClick={() => setAudienceFilter("student")}

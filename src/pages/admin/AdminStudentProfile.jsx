@@ -78,35 +78,40 @@ export function AdminStudentProfile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between py-4">
-            <div className="flex items-center gap-3">
-              <Button variant="ghost" onClick={goBack} className="mr-2">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <User className="h-6 w-6 text-red-700" />
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">
-                  Student Profile
-                </h1>
-                <p className="text-sm text-gray-500">{student.name}</p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Header */}
+        <div className="bg-white border-b border-gray-200 shadow-sm rounded-xl">
+          <div className="px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between py-8 flex-col md:flex-row gap-4">
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="ghost"
+                  onClick={goBack}
+                  className="mr-2 bg-red-700 rounded-md hover:bg-red-800 text-white hover:text-white"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                </Button>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Student Profile
+                  </h1>
+                  <p className="text-xs text-gray-500">{student.name}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={handleEditStudent}
+                  className="bg-red-700 hover:bg-red-800 text-white"
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Profile
+                </Button>
               </div>
             </div>
-            <Button
-              onClick={handleEditStudent}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              <Edit className="h-4 w-4 mr-2" />
-              Edit Profile
-            </Button>
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Main Student Info Card */}
         <BasicInfo student={student} />
 

@@ -106,8 +106,8 @@ export const schoolMenuItems = [
     title: "Settings",
     icon: Settings,
     subItems: [
-      { title: "Profile", url: "/school/settings/profile" },
-      { title: "Account", url: "/school/settings/account" },
+      { title: "Profile", url: "/school/profile" },
+      { title: "Contact for Query", url: "/school/profile/query" },
     ],
   },
 ];

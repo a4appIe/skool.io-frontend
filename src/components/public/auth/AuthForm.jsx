@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { loginSchool } from "@/services/school.service";
 import { loginStudent } from "@/services/student.service";
+import { loginTeacher } from "@/services/teacher.service";
 // import { loginTeacher } from "@/services/teacher.service";
 import {
   ChevronRight,
@@ -78,7 +79,7 @@ export function AuthForm() {
           redirectPath = "/student";
           break;
         case "teacher":
-          // response = await loginTeacher(credentials);
+          response = await loginTeacher(credentials);
           redirectPath = "/teacher";
           break;
         case "school":
@@ -87,11 +88,12 @@ export function AuthForm() {
           redirectPath = "/school";
           break;
       }
+      console.log(response);
 
       if (response?.success) {
         toast.success(`Welcome back, ${user.userType}!`);
-        navigate(redirectPath);
         handleClose();
+        return navigate(redirectPath);
       } else {
         toast.error(response.message || "Login failed");
       }

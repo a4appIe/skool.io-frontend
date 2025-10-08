@@ -91,8 +91,16 @@ export const deleteClassById = async (cls) => {
 export const getClass = async (id) => {
   // Simulate API call
   try {
-    const response = await axios.get(`${API_URL}/class/get-class/${id}`);
-    return response.data;
+    const response = await axios.get(`${API_URL}/class/${id}`);
+    if (response.data.success) {
+      console.log(response.data.data);
+      return response.data.data;
+    } else {
+      toast.error("Failed to fetch class.", {
+        description:
+          response.data.message || "An error occurred while fetching class.",
+      });
+    }
   } catch (error) {
     console.error("Error fetching class:", error);
     throw error;
@@ -102,7 +110,7 @@ export const getClass = async (id) => {
 export const getAllClasses = async () => {
   // Simulate API call
   try {
-    const response = await axios.get(`${API_URL}/class/classes`);
+    const response = await axios.get(`${API_URL}/class`);
     console.log(response);
     if (response.data.success) {
       console.log(response.data.data);

@@ -1,9 +1,11 @@
-import { useState, useEffect } from "react";
+/* eslint-disable react-hooks/exhaustive-deps */
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Sheet,
   SheetContent,
@@ -21,78 +23,24 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { BookOpen, User, Plus, Save, Edit } from "lucide-react";
+import { BookOpen, User, Plus, Save, Edit, Users } from "lucide-react";
 import { toast } from "sonner";
 import { createSubject, updateSubjectById } from "@/services/subject.service";
+import { getAllTeachers } from "@/services/teacher.service";
+import { getAllClasses } from "@/services/class.service";
 
-const attendeeList = [
-  {
-    id: 1,
-    name: "Ms. Sarah Johnson",
-    department: "Mathematics",
-    email: "sarah.johnson@school.edu",
-  },
-  {
-    id: 2,
-    name: "Mr. David Smith",
-    department: "Science",
-    email: "david.smith@school.edu",
-  },
-  {
-    id: 3,
-    name: "Mrs. Emily Davis",
-    department: "English",
-    email: "emily.davis@school.edu",
-  },
-  {
-    id: 4,
-    name: "Mr. Michaeledu",
-  },
-  {
-    id: 5,
-    name: "Ms. Jennifer Wilson",
-    department: "Art",
-    email: "jennifer.wilson@school.edu",
-  },
-  {
-    id: 6,
-    name: "Mr. Robert Taylor",
-    department: "Physical Education",
-    email: "robert.taylor@school.edu",
-  },
-  {
-    id: 7,
-    name: "Mrs. Lisa Anderson",
-    department: "Music",
-    email: "lisa.anderson@school.edu",
-  },
-  {
-    id: 8,
-    name: "Mr. James Martinez",
-    department: "Computer Science",
-    email: "james.martinez@school.edu",
-  },
-  {
-    id: 9,
-    name: "Ms. Amanda Garcia",
-    department: "Spanish",
-    email: "amanda.garcia@school.edu",
-  },
-  {
-    id: 10,
-    name: "Mr. Christopher Lee",
-    department: "Chemistry",
-    email: "christopher.lee@school.edu",
-  },
-];
-
-// Utility for progress calculation based on required fields
-function calcProgress(subject) {
-  const requiredFields = [subject?.subjectName, subject?.subjectCode];
+function calcProgress(subject, selectedClasses) {
+  const requiredFields = [
+    subject?.subjectName,
+    subject?.subjectCode,
+    subject?.attendee,
+  ];
   const completed = requiredFields.filter(
     (f) => f && f.toString().trim()
   ).length;
-  return Math.round((completed / requiredFields.length) * 100);
+  const classesSelected = selectedClasses.length > 0 ? 1 : 0;
+  const total = requiredFields.length + 1;
+  return Math.round(((completed + classesSelected) / total) * 100);
 }
 
 export function SubjectForm({
@@ -100,11 +48,12 @@ export function SubjectForm({
   subject = null,
   fetchSubjects = null,
 }) {
-  // Control sheet open state here or pass from parent
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [teachers, setTeachers] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [loadingData, setLoadingData] = useState(false);
 
-  // Local form state
   const [formData, setFormData] = useState({
     subjectName: "",
     subjectCode: "",
@@ -112,74 +61,147 @@ export function SubjectForm({
     attendee: "",
   });
 
-  // Sync formData with subject prop when editing and sheet opens
+  const [selectedClasses, setSelectedClasses] = useState([]);
+
   useEffect(() => {
     if (isOpen) {
-      if (edit && subject) {
-        setFormData({
+      fetchTeachersAndClasses();
+    }
+  }, [isOpen]);
+
+  const fetchTeachersAndClasses = async () => {
+    try {
+      setLoadingData(true);
+      const [teachersData, classesData] = await Promise.all([
+        getAllTeachers(),
+        getAllClasses(),
+      ]);
+      setTeachers(teachersData || []);
+      setClasses(classesData || []);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      toast.error("Failed to load teachers and classes");
+    } finally {
+      setLoadingData(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    if (edit && subject?._id) {
+      setFormData((prev) => {
+        const newData = {
           subjectName: subject.subjectName || "",
           subjectCode: subject.subjectCode || "",
           description: subject.description || "",
-          attendee: subject.attendee ? subject.attendee.toString() : "",
-        });
-      } else {
-        // New subject reset
-        setFormData({
-          subjectName: "",
-          subjectCode: "",
-          description: "",
-          attendee: "",
-        });
-      }
+          attendee: subject.attendee?._id || subject.attendee || "",
+        };
+
+        if (
+          prev.subjectName === newData.subjectName &&
+          prev.subjectCode === newData.subjectCode &&
+          prev.description === newData.description &&
+          prev.attendee === newData.attendee
+        ) {
+          return prev;
+        }
+
+        return newData;
+      });
+
+      setSelectedClasses((prev) => {
+        const newClasses =
+          subject.classes?.map((cls) =>
+            typeof cls === "object" ? cls._id : cls
+          ) || [];
+
+        const prevSorted = [...prev].sort().join(",");
+        const newSorted = [...newClasses].sort().join(",");
+
+        if (prevSorted === newSorted) {
+          return prev;
+        }
+
+        return newClasses;
+      });
+    } else if (!edit) {
+      setFormData({
+        subjectName: "",
+        subjectCode: "",
+        description: "",
+        attendee: "",
+      });
+      setSelectedClasses([]);
     }
-  }, [isOpen, edit, subject]);
+  }, [isOpen, edit, subject?._id]);
 
-  // Update formData helper
-  const handleChange = (field, value) => {
+  const handleChange = useCallback((field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-  };
+  }, []);
 
-  // Get selected attendee object by id
-  const selectedAttendee = attendeeList.find(
-    (a) => a.id.toString() === formData.attendee
+  // Toggle function
+  const toggleClass = useCallback((classId) => {
+    setSelectedClasses((prev) => {
+      if (prev.includes(classId)) {
+        return prev.filter((id) => id !== classId);
+      }
+      return [...prev, classId];
+    });
+  }, []);
+
+  const selectedTeacher = useMemo(
+    () => teachers.find((t) => t._id === formData.attendee),
+    [teachers, formData.attendee]
   );
 
-  function handleReset() {
+  const handleReset = useCallback(() => {
     setFormData({
       subjectName: "",
       subjectCode: "",
       description: "",
       attendee: "",
     });
-    setIsOpen(false);
-  }
+    setSelectedClasses([]);
+  }, []);
 
-  // Form submit handler mock
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic front-end validation:
-    if (!formData.subjectName || !formData.subjectCode) {
+    if (!formData.subjectName || !formData.subjectCode || !formData.attendee) {
       return toast.error("Please fill in all required fields.");
+    }
+
+    if (selectedClasses.length === 0) {
+      return toast.error("Please select at least one class.");
     }
 
     setLoading(true);
     try {
+      const payload = {
+        ...formData,
+        classes: selectedClasses,
+      };
+      console.log(payload);
+
       if (edit) {
-        let updatedSubject = await updateSubjectById(subject._id, formData);
+        let updatedSubject = await updateSubjectById(subject._id, payload);
         if (updatedSubject) {
-          fetchSubjects();
+          toast.success("Subject updated successfully!");
+          fetchSubjects && fetchSubjects();
         }
       } else {
-        let createdSubject = await createSubject(formData);
+        let createdSubject = await createSubject(payload);
         if (createdSubject) {
-          fetchSubjects();
+          toast.success("Subject created successfully!");
+          fetchSubjects && fetchSubjects();
         }
       }
-      // Reset form and close sheet
+      setIsOpen(false);
       handleReset();
     } catch (error) {
       console.error(error);
+      toast.error("An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -201,184 +223,286 @@ export function SubjectForm({
       </SheetTrigger>
       <SheetContent
         side="right"
-        className="!w-full md:!w-[800px] !max-w-none p-0 border-gray-200 [&>button.absolute]:hidden"
+        className="!w-full md:!w-[800px] !max-w-none p-0 border-gray-200 flex flex-col overflow-hidden [&>button]:hidden"
       >
-        <ScrollArea className="h-full">
-          <form onSubmit={handleSubmit} className="flex flex-col h-full">
-            <SheetHeader className="px-6 py-4 border-b border-gray-200 bg-red-50">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-red-700 rounded-lg">
-                    <BookOpen className="h-5 w-5 text-white" />
-                  </div>
-                  <div>
-                    <SheetTitle className="text-xl font-bold text-gray-900">
-                      {edit ? "Edit Subject" : "Add New Subject"}
-                    </SheetTitle>
-                    <SheetDescription className="text-gray-600">
-                      {edit
-                        ? "Update details of the subject."
-                        : "Add details to create a new subject."}
-                    </SheetDescription>
-                  </div>
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col h-full overflow-hidden"
+        >
+          <SheetHeader className="px-6 py-4 border-b border-gray-200 bg-red-50 flex-shrink-0">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-red-700 rounded-lg">
+                  <BookOpen className="h-5 w-5 text-white" />
                 </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                  className="border-gray-300 text-gray-700 hover:bg-gray-100"
-                >
-                  Cancel
-                </Button>
-              </div>
-
-              <div className="mt-4">
-                <Progress value={calcProgress(formData)} className="h-2" />
-                <div className="flex justify-between text-sm text-gray-700 mt-1">
-                  <span>Form Completion</span>
-                  <span>{calcProgress(formData)}%</span>
+                <div>
+                  <SheetTitle className="text-xl font-bold text-gray-900">
+                    {edit ? "Edit Subject" : "Add New Subject"}
+                  </SheetTitle>
+                  <SheetDescription className="text-gray-600">
+                    {edit
+                      ? "Update details of the subject."
+                      : "Add details to create a new subject."}
+                  </SheetDescription>
                 </div>
               </div>
-            </SheetHeader>
-
-            <div className="flex-1 overflow-auto px-6 py-6">
-              {/* Subject Name */}
-              <div className="space-y-2 mb-6">
-                <Label
-                  htmlFor="subjectName"
-                  className="text-gray-700 font-medium"
-                >
-                  Subject Name <span className="text-red-700">*</span>
-                </Label>
-                <div className="relative">
-                  <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    id="subjectName"
-                    value={formData.subjectName}
-                    onChange={(e) =>
-                      handleChange("subjectName", e.target.value)
-                    }
-                    placeholder="Subject name e.g. Mathematics"
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Subject Code */}
-              <div className="space-y-2 mb-6">
-                <Label
-                  htmlFor="subjectCode"
-                  className="text-gray-700 font-medium"
-                >
-                  Subject Code <span className="text-red-700">*</span>
-                </Label>
-                <div className="relative">
-                  <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                  <Input
-                    id="subjectCode"
-                    value={formData.subjectCode}
-                    onChange={(e) =>
-                      handleChange("subjectCode", e.target.value.toUpperCase())
-                    }
-                    placeholder="Subject code e.g. MATH101"
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              {/* Attendee */}
-              <div className="space-y-2 mb-6">
-                <Label htmlFor="attendee" className="text-gray-700 font-medium">
-                  Subject Attendee (Teacher){" "}
-                  <span className="text-red-700">*</span>
-                </Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
-                  <Select
-                    value={formData.attendee}
-                    onValueChange={(val) => handleChange("attendee", val)}
-                    required
-                  >
-                    <SelectTrigger className="pl-10">
-                      <SelectValue placeholder="Select a teacher" />
-                    </SelectTrigger>
-                    <SelectContent className="max-h-60">
-                      {attendeeList.map((att) => (
-                        <SelectItem key={att.id} value={att.id.toString()}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">{att.name}</span>
-                            <span className="text-xs text-gray-500">
-                              {att.department ? att.department + " • " : ""}
-                              {att.email || ""}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {formData.attendee && (
-                  <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-md flex items-center gap-3">
-                    <User className="text-red-700 h-5 w-5" />
-                    <div>
-                      <p className="text-sm font-semibold">
-                        {selectedAttendee?.name}
-                      </p>
-                      <p className="text-xs text-gray-600">
-                        {selectedAttendee?.department}{" "}
-                        {selectedAttendee?.email &&
-                          `• ${selectedAttendee.email}`}
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              {/* Description */}
-              <div className="space-y-2 mb-6">
-                <Label
-                  htmlFor="description"
-                  className="text-gray-700 font-medium"
-                >
-                  Description
-                </Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => handleChange("description", e.target.value)}
-                  rows={4}
-                  placeholder="Optional description about the subject"
-                />
-              </div>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsOpen(false)}
+                className="border-gray-300 text-gray-700 hover:bg-gray-100"
+              >
+                Cancel
+              </Button>
             </div>
 
-            <SheetFooter className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex items-end justify-end gap-3">
-              <Button
-                type="submit"
-                className="bg-red-700"
-                disabled={
-                  loading ||
-                  !formData.subjectName.trim() ||
-                  !formData.subjectCode.trim()
-                }
-              >
-                {loading ? (
-                  <>
-                    <span className="animate-spin spinner-border spinner-border-sm mr-2" />
-                    Saving...
-                  </>
-                ) : (
-                  <>
-                    <Save className="mr-1 h-4 w-4" />
-                    {edit ? "Update Subject" : "Create Subject"}
-                  </>
-                )}
-              </Button>
-            </SheetFooter>
-          </form>
-        </ScrollArea>
+            <div>
+              <Progress
+                value={calcProgress(formData, selectedClasses)}
+                className="h-2"
+              />
+              <div className="flex justify-between text-sm text-gray-700 mt-1">
+                <span>Form Completion</span>
+                <span>{calcProgress(formData, selectedClasses)}%</span>
+              </div>
+            </div>
+          </SheetHeader>
+
+          <ScrollArea className="flex-1 h-full">
+            <div className="px-6 py-6">
+              {loadingData ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-700"></div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex gap-4">
+                    <div className="space-y-2 mb-6 flex-1">
+                      <Label
+                        htmlFor="subjectName"
+                        className="text-gray-700 font-medium"
+                      >
+                        Subject Name <span className="text-red-700">*</span>
+                      </Label>
+                      <div className="relative">
+                        <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          id="subjectName"
+                          value={formData.subjectName}
+                          onChange={(e) =>
+                            handleChange("subjectName", e.target.value)
+                          }
+                          placeholder="Subject name e.g. Mathematics"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 mb-6 flex-1">
+                      <Label
+                        htmlFor="subjectCode"
+                        className="text-gray-700 font-medium"
+                      >
+                        Subject Code <span className="text-red-700">*</span>
+                      </Label>
+                      <div className="relative">
+                        <BookOpen className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                        <Input
+                          id="subjectCode"
+                          value={formData.subjectCode}
+                          onChange={(e) =>
+                            handleChange(
+                              "subjectCode",
+                              e.target.value.toUpperCase()
+                            )
+                          }
+                          placeholder="Subject code e.g. MATH101"
+                          className="pl-10"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2 mb-6 flex gap-4 items-center">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="attendee"
+                        className="text-gray-700 font-medium"
+                      >
+                        Subject Teacher <span className="text-red-700">*</span>
+                      </Label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4 z-10" />
+                        <Select
+                          value={formData.attendee}
+                          onValueChange={(val) => handleChange("attendee", val)}
+                          required
+                        >
+                          <SelectTrigger className="pl-10">
+                            <SelectValue placeholder="Select a teacher" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-60">
+                            {teachers.length === 0 ? (
+                              <div className="p-2 text-sm text-gray-500">
+                                No teachers available
+                              </div>
+                            ) : (
+                              teachers.map((teacher) => (
+                                <SelectItem
+                                  key={teacher._id}
+                                  value={teacher._id}
+                                >
+                                  <div className="flex flex-col">
+                                    <span className="font-medium">
+                                      {teacher.name}
+                                    </span>
+                                    <span className="text-xs text-gray-500">
+                                      {teacher.email}
+                                    </span>
+                                  </div>
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    {formData.attendee && selectedTeacher && (
+                      <div className="mt-2 p-3 bg-gray-50 border border-gray-200 rounded-md flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-700 to-red-800 flex items-center justify-center text-white font-semibold">
+                          {selectedTeacher.name?.charAt(0)?.toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold">
+                            {selectedTeacher.name}
+                          </p>
+                          <p className="text-xs text-gray-600">
+                            {selectedTeacher.email}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ✅ FIXED: Classes Selection - Removed duplicate event handlers */}
+                  <div className="space-y-2 mb-6">
+                    <Label className="text-gray-700 font-medium">
+                      Assign to Classes <span className="text-red-700">*</span>
+                    </Label>
+                    <p className="text-xs text-gray-500 mb-3">
+                      Select the classes where this subject will be taught
+                    </p>
+                    {classes.length === 0 ? (
+                      <div className="p-4 bg-gray-50 border border-gray-200 rounded-lg text-center text-sm text-gray-500">
+                        No classes available
+                      </div>
+                    ) : (
+                      <div className="border border-gray-200 rounded-lg bg-gray-50">
+                        <ScrollArea className="h-52 w-full">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 p-3">
+                            {classes.map((classItem) => {
+                              const isSelected = selectedClasses.includes(
+                                classItem._id
+                              );
+
+                              return (
+                                <label
+                                  key={classItem._id}
+                                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                                    isSelected
+                                      ? "bg-red-50 border-red-300"
+                                      : "bg-white border-gray-200 hover:bg-gray-100"
+                                  }`}
+                                >
+                                  {/* ✅ CRITICAL FIX: Use label wrapper, single handler */}
+                                  <Checkbox
+                                    checked={isSelected}
+                                    onCheckedChange={() =>
+                                      toggleClass(classItem._id)
+                                    }
+                                  />
+                                  <div className="flex items-center gap-2 flex-1">
+                                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-xs">
+                                      {classItem.className?.charAt(0)}
+                                    </div>
+                                    <div>
+                                      <p className="text-sm font-semibold text-gray-900">
+                                        {classItem.className}
+                                      </p>
+                                      <p className="text-xs text-gray-500">
+                                        {classItem.students?.length || 0}{" "}
+                                        students
+                                      </p>
+                                    </div>
+                                  </div>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </ScrollArea>
+                      </div>
+                    )}
+                    {selectedClasses.length > 0 && (
+                      <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md flex items-center gap-2">
+                        <Users className="h-4 w-4 text-blue-700" />
+                        <p className="text-sm text-blue-900">
+                          {selectedClasses.length} class(es) selected
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 mb-6">
+                    <Label
+                      htmlFor="description"
+                      className="text-gray-700 font-medium"
+                    >
+                      Description
+                    </Label>
+                    <Textarea
+                      id="description"
+                      value={formData.description}
+                      onChange={(e) =>
+                        handleChange("description", e.target.value)
+                      }
+                      rows={4}
+                      placeholder="Optional description about the subject"
+                    />
+                  </div>
+                </>
+              )}
+            </div>
+          </ScrollArea>
+
+          <SheetFooter className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex-shrink-0">
+            <Button
+              type="submit"
+              className="bg-red-700 hover:bg-red-800"
+              disabled={
+                loading ||
+                loadingData ||
+                !formData.subjectName.trim() ||
+                !formData.subjectCode.trim() ||
+                !formData.attendee ||
+                selectedClasses.length === 0
+              }
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="mr-2 h-4 w-4" />
+                  {edit ? "Update Subject" : "Create Subject"}
+                </>
+              )}
+            </Button>
+          </SheetFooter>
+        </form>
       </SheetContent>
     </Sheet>
   );

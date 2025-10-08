@@ -23,6 +23,7 @@ import {
   ResponsiveContainer,
   CartesianGrid,
 } from "recharts";
+import ClassInfoModal from "@/components/admin/class/ClassInfoModal";
 
 export default function AdminClasses() {
   const [classes, setClasses] = useState([]);
@@ -126,6 +127,7 @@ export default function AdminClasses() {
                   </CardContent>
                   <CardFooter className="pt-4 flex gap-2 justify-between">
                     <div className="flex gap-2">
+                      <ClassInfoModal classData={cls} />
                       <ClassForm
                         edit={true}
                         cls={cls}

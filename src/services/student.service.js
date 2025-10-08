@@ -36,7 +36,6 @@ export const registerStudent = async (studentData) => {
 };
 
 export const loginStudent = async (studentData) => {
-  // const { login } = useStudentStore.getState();
   try {
     const response = await axios.post(
       `${API_URL}/student/login-student`,
@@ -52,7 +51,6 @@ export const loginStudent = async (studentData) => {
     if (response.data.success) {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(response.data.data));
-      // login(response.data.data);
       toast.success("School logged in successfully!", {
         description: response.data.message,
       });

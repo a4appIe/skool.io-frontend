@@ -14,6 +14,7 @@ import { formatDate } from "@/utils/formatDate";
 import { getAllSubjects } from "@/services/subject.service";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { SubjectInfoModal } from "@/components/admin/subjects/SubjectInfoModal";
 
 export default function AdminSubjects() {
   const [subjects, setSubjects] = useState([]);
@@ -125,6 +126,7 @@ export default function AdminSubjects() {
 
                 <CardFooter className="pt-4 flex gap-2 justify-between">
                   <div className="flex gap-2">
+                    <SubjectInfoModal subject={subject} />
                     <SubjectForm
                       edit={true}
                       subject={subject}

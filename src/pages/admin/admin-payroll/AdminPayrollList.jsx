@@ -337,7 +337,7 @@ export default function AdminPayrollList() {
                               size="sm"
                               variant="outline"
                               onClick={() => handleDetails(teacher._id)}
-                              className="border-gray-300 hover:bg-gray-50"
+                              className="border-gray-300"
                             >
                               <Eye className="h-4 w-4 mr-1" />
                               Details
@@ -346,10 +346,10 @@ export default function AdminPayrollList() {
                             {/* Pay Button */}
                             <Button
                               size="sm"
-                              className="bg-red-700 hover:bg-red-800 text-white"
+                              className="!bg-red-700 hover:!bg-red-800 text-white"
                               onClick={(e) => handleOpenPaymentSheet(teacher, e)}
                             >
-                              <DollarSign className="h-4 w-4 mr-1" />
+                              <DollarSign className="h-4 w-4 mr-1 !text-white !bg-transparent" />
                               Pay
                             </Button>
                           </div>

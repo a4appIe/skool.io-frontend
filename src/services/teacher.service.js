@@ -35,12 +35,12 @@ export const registerTeacher = async (teacherData) => {
   }
 };
 
-export const loginSchool = async (schoolData) => {
-//   const { login } = useStudentStore.getState();
+export const loginTeacher = async (teacherData) => {
+  //   const { login } = useStudentStore.getState();
   try {
     const response = await axios.post(
-      `${API_URL}/school/login-school`,
-      schoolData,
+      `${API_URL}/teacher/login-teacher`,
+      teacherData,
       {
         headers: {
           "Content-Type": "application/json",
@@ -52,7 +52,7 @@ export const loginSchool = async (schoolData) => {
     if (response.data.success) {
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(response.data.data));
-    //   login(response.data.data);
+      //   login(response.data.data);
       toast.success("School logged in successfully!", {
         description: response.data.message,
       });
@@ -63,7 +63,7 @@ export const loginSchool = async (schoolData) => {
       description: error.response?.data?.message || error.message,
     });
     console.error(
-      "Error logging in school:",
+      "Error logging in teacher:",
       error.response?.data || error.message
     );
     throw error;
@@ -167,6 +167,35 @@ export const getTeacher = async (id) => {
       description:
         error.response.data.message ||
         "An error occurred while fetching teacher.",
+    });
+  }
+};
+
+export const getTeacherProfile = async () => {
+  // Simulate API call
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/teacher`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response);
+    if (response.data.success) {
+      return response.data.data;
+    } else {
+      return toast.error("Failed to fetch teacher profile.", {
+        description:
+          response.data.message ||
+          "An error occurred while fetching teacher profile.",
+      });
+    }
+  } catch (error) {
+    console.error("Error fetching teacher profile:", error);
+    return toast.error("Failed to fetch teacher profile.", {
+      description:
+        error.response?.data?.message ||
+        "An error occurred while fetching teacher profile.",
     });
   }
 };

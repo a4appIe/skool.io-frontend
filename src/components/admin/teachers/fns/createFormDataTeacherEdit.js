@@ -18,6 +18,7 @@ const createFormDataTeacherEdit = (teacherData) => {
   appendIfExists("email", teacherData.email);
   appendIfExists("phone", teacherData.phone);
   appendIfExists("qualification", teacherData.qualification);
+  appendIfExists("salary", teacherData.salary);
 
   // Handle experience (can be 0, so check specifically for null/undefined)
   if (teacherData.experience !== null && teacherData.experience !== undefined) {

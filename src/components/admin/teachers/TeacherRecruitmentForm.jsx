@@ -26,6 +26,8 @@ import {
   MapPin,
   GraduationCap,
   ArrowLeft,
+  DollarSign,
+  IndianRupee,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import createFormDataTeacher from "./fns/createFormDataTeacher";
@@ -35,12 +37,13 @@ import {
   updateTeacher,
 } from "@/services/teacher.service";
 import createFormDataTeacherEdit from "./fns/createFormDataTeacherEdit";
+import { getAllSalaries } from "@/services/salary.service";
 
 const bloodGroups = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
 const CATEGORIES = ["General", "OBC", "SC", "ST", "Other"];
 const GENDERS = ["Male", "Female", "Other"];
 
-// Initial form state
+// Initial form state - Added salary field
 const initialFormState = {
   name: "",
   email: "",
@@ -56,6 +59,7 @@ const initialFormState = {
   category: "General",
   aadharNumber: "",
   bloodGroup: "",
+  salary: "", // NEW: salary field (will store amount)
   teacherImage: null,
   address: {
     street: "",
@@ -67,10 +71,44 @@ const initialFormState = {
 };
 
 export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
-  const [formData, setFormData] = useState(edit ? null : { ...initialFormState });
+  const [formData, setFormData] = useState(
+    edit ? null : { ...initialFormState }
+  );
   const [loading, setLoading] = useState(false);
+  const [salaries, setSalaries] = useState([]); // NEW: salary options from backend
+  const [loadingSalaries, setLoadingSalaries] = useState(false); // NEW: loading state
   const navigate = useNavigate();
   const TEACHER_PATH = import.meta.env.VITE_TEACHER_PATH;
+
+  /**
+   * NEW: Fetch salary data from backend
+   * Replace this URL with your actual API endpoint
+   */
+  const fetchSalaries = async () => {
+    setLoadingSalaries(true);
+    try {
+      // TODO: Replace with your actual API endpoint
+      const salaries = await getAllSalaries();
+      if (salaries) {
+        setSalaries(salaries || []);
+      }
+    } catch (error) {
+      console.error("Error fetching salaries:", error);
+      setSalaries([]);
+    } finally {
+      setLoadingSalaries(false);
+    }
+  };
+
+  // Format currency for display
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount);
+  };
 
   const fetchTeacherData = async () => {
     if (edit && teacherId) {
@@ -152,11 +190,18 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
     setFormData(initialFormState);
   };
 
+  // Fetch teacher data and salaries on mount
   useEffect(() => {
     fetchTeacherData();
+    fetchSalaries(); // NEW: Fetch salary options
   }, []);
 
-  if (!formData) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  if (!formData)
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading...
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -192,7 +237,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200">
               <User className="h-6 w-6 text-red-700" />
-              <h2 className="text-xl font-bold text-gray-900">Personal Information</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                Personal Information
+              </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2 sm:col-span-2 lg:col-span-1">
@@ -261,7 +308,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                 <Label htmlFor="bloodGroup">Blood Group</Label>
                 <Select
                   value={formData.bloodGroup}
-                  onValueChange={(value) => updateFormField("bloodGroup", value)}
+                  onValueChange={(value) =>
+                    updateFormField("bloodGroup", value)
+                  }
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select Blood Group" />
@@ -303,7 +352,10 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                   id="aadharNumber"
                   value={formData.aadharNumber}
                   onChange={(e) =>
-                    updateFormField("aadharNumber", e.target.value.replace(/\D/g, ""))
+                    updateFormField(
+                      "aadharNumber",
+                      e.target.value.replace(/\D/g, "")
+                    )
                   }
                   placeholder="Enter Aadhaar number"
                   maxLength={12}
@@ -322,7 +374,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                   id="teacherImage"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => updateFormField("teacherImage", e.target.files?.[0] || null)}
+                  onChange={(e) =>
+                    updateFormField("teacherImage", e.target.files?.[0] || null)
+                  }
                   className="hidden"
                 />
                 {!formData.teacherImage && (
@@ -362,7 +416,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200">
               <Phone className="h-6 w-6 text-red-700" />
-              <h2 className="text-xl font-bold text-gray-900">Contact Information</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                Contact Information
+              </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
@@ -399,7 +455,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200">
               <MapPin className="h-6 w-6 text-red-700" />
-              <h2 className="text-xl font-bold text-gray-900">Address Information</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                Address Information
+              </h2>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="space-y-2 sm:col-span-2">
@@ -407,7 +465,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                 <Input
                   id="street"
                   value={formData.address.street}
-                  onChange={(e) => updateFormField("street", e.target.value, "address")}
+                  onChange={(e) =>
+                    updateFormField("street", e.target.value, "address")
+                  }
                   placeholder="Enter street address"
                 />
               </div>
@@ -419,7 +479,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                 <Input
                   id="city"
                   value={formData.address.city}
-                  onChange={(e) => updateFormField("city", e.target.value, "address")}
+                  onChange={(e) =>
+                    updateFormField("city", e.target.value, "address")
+                  }
                   placeholder="Enter city"
                 />
               </div>
@@ -431,7 +493,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                 <Input
                   id="state"
                   value={formData.address.state}
-                  onChange={(e) => updateFormField("state", e.target.value, "address")}
+                  onChange={(e) =>
+                    updateFormField("state", e.target.value, "address")
+                  }
                   placeholder="Enter state"
                 />
               </div>
@@ -444,7 +508,11 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                   id="pincode"
                   value={formData.address.pincode}
                   onChange={(e) =>
-                    updateFormField("pincode", e.target.value.replace(/\D/g, ""), "address")
+                    updateFormField(
+                      "pincode",
+                      e.target.value.replace(/\D/g, ""),
+                      "address"
+                    )
                   }
                   placeholder="Enter pincode"
                   maxLength={10}
@@ -453,13 +521,15 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
             </div>
           </div>
 
-          {/* Professional Information Section */}
+          {/* Professional Information Section - ADDED SALARY FIELD */}
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
             <div className="flex items-center gap-2 mb-6 pb-4 border-b border-gray-200">
               <GraduationCap className="h-6 w-6 text-red-700" />
-              <h2 className="text-xl font-bold text-gray-900">Professional Information</h2>
+              <h2 className="text-xl font-bold text-gray-900">
+                Professional Information
+              </h2>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="qualification">
                   Qualification <span className="text-red-700">*</span>
@@ -467,7 +537,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                 <Input
                   id="qualification"
                   value={formData.qualification}
-                  onChange={(e) => updateFormField("qualification", e.target.value)}
+                  onChange={(e) =>
+                    updateFormField("qualification", e.target.value)
+                  }
                   placeholder="Enter highest qualification (e.g., B.Ed, M.A)"
                 />
               </div>
@@ -488,6 +560,60 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                   placeholder="Enter years of experience"
                 />
               </div>
+
+              {/* NEW: Salary Select Field */}
+              <div className="space-y-2">
+                <Label htmlFor="salary">
+                  Salary Grade <span className="text-red-700">*</span>
+                </Label>
+                <div className="relative">
+                  <IndianRupee className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500 z-10 pointer-events-none" />
+                  <Select
+                    value={formData.salary?.toString() || ""}
+                    onValueChange={(value) =>
+                      updateFormField("salary", parseInt(value))
+                    }
+                    disabled={loadingSalaries}
+                  >
+                    <SelectTrigger className="pl-10">
+                      <SelectValue
+                        placeholder={
+                          loadingSalaries
+                            ? "Loading salaries..."
+                            : "Select salary grade"
+                        }
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-60">
+                      {loadingSalaries ? (
+                        <div className="p-4 text-sm text-gray-500 text-center">
+                          Loading...
+                        </div>
+                      ) : salaries.length === 0 ? (
+                        <div className="p-4 text-sm text-gray-500 text-center">
+                          No salary grades available
+                        </div>
+                      ) : (
+                        salaries.map((salary) => (
+                          <SelectItem
+                            key={salary._id}
+                            value={salary.amount.toString()}
+                          >
+                            <div className="flex flex-col py-1">
+                              <span className="font-semibold text-gray-900">
+                                {salary.name}
+                              </span>
+                              <span className="text-xs text-gray-600">
+                                {formatCurrency(salary.amount)} per month
+                              </span>
+                            </div>
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -496,7 +622,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
             <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-200">
               <div className="flex items-center gap-2">
                 <FileText className="h-6 w-6 text-red-700" />
-                <h2 className="text-xl font-bold text-gray-900">Required Documents</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Required Documents
+                </h2>
               </div>
               <Button
                 type="button"
@@ -512,7 +640,11 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
               <div className="text-center py-12 border-2 border-dashed rounded-lg">
                 <FileText className="mx-auto h-12 w-12 text-gray-400 mb-4" />
                 <p className="text-gray-500 mb-4">No documents uploaded yet</p>
-                <Button type="button" onClick={addDocument} className="bg-red-700 hover:bg-red-800">
+                <Button
+                  type="button"
+                  onClick={addDocument}
+                  className="bg-red-700 hover:bg-red-800"
+                >
                   <Plus className="h-4 w-4 mr-2" />
                   Add First Document
                 </Button>
@@ -528,7 +660,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                         </Label>
                         <Input
                           value={doc.name}
-                          onChange={(e) => updateDocument(index, "name", e.target.value)}
+                          onChange={(e) =>
+                            updateDocument(index, "name", e.target.value)
+                          }
                           placeholder="e.g., Degree Certificate"
                         />
                       </div>
@@ -542,7 +676,9 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                             id={`docFile-${index}`}
                             type="file"
                             accept=".pdf,.jpg,.jpeg,.png"
-                            onChange={(e) => updateDocument(index, "file", e.target.files?.[0])}
+                            onChange={(e) =>
+                              updateDocument(index, "file", e.target.files?.[0])
+                            }
                             className="hidden"
                           />
                           {!doc.file && (
@@ -559,7 +695,8 @@ export function TeacherRecruitmentForm({ edit = false, teacherId = null }) {
                               <div className="bg-red-100 p-2 rounded border border-red-600 flex-1 overflow-hidden">
                                 <span className="text-xs flex items-center gap-2">
                                   <File className="h-4 w-4" />
-                                  {doc.file.name?.slice(0, 20) || "File selected"}
+                                  {doc.file.name?.slice(0, 20) ||
+                                    "File selected"}
                                 </span>
                               </div>
                               <Label

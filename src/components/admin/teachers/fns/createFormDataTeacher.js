@@ -13,6 +13,7 @@ const createFormDataTeacher = (formData) => {
   formDataObj.append("phone", formData.phone || "");
   formDataObj.append("qualification", formData.qualification || "");
   formDataObj.append("experience", formData.experience || 0);
+  formDataObj.append("salary", formData.salary || 0);
 
   // File upload - Teacher Image
   if (formData.teacherImage) {
